@@ -1,0 +1,20 @@
+
+extends layout
+
+block content
+    .error
+        if error
+            p= error
+    form(action="registration", method="post")
+        input(type="text", placeholder="Логин" name="nickname")
+        input(type="password", placeholder="Пароль", name="password")
+        input(type="password", placeholder="Повторите пароль", name="password_repeat")
+        input(type="email", placeholder="Электронная почта", name="email")
+        input(type="submit", value="Зарегистрироваться!")
+    script(type="text/javascript").
+        var socket = io();
+
+        socket.on("registration error", function(msg) {
+            $('.error').text(msg);
+        });
+

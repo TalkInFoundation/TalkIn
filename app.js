@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-
+var registration = require('./routes/registration');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -30,6 +30,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
+
+app.post('/registration', registration.send_data);
+
+app.use('/registration', registration.registration);
+
 io.on('connection', function(socket){
   socket.on('send message', function(msg){
       socket.broadcast.emit('send message', msg);
@@ -51,6 +56,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
+      console.log(err.stack);
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
