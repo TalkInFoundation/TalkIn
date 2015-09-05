@@ -1,7 +1,16 @@
 doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    block content
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/chat.css')
+        script(src="https://cdn.socket.io/socket.io-1.2.0.js")
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+
+    body
+    .header-wrapper
+      block header
+    .content-wrapper
+      block content
+    .footer-wrapper
+      block footer

@@ -9,6 +9,11 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+http.listen(3000, function(){
+  console.log('Server started. Port: 3000');
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +30,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
+io.on('connection', function(socket){
+  socket.on('send message', function(msg){
+      socket.broadcast.emit('send message', msg);
+  });
+  socket.on('disconnect', function(){
+
+  })
+});
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

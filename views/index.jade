@@ -1,5 +1,39 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    .chat-wrapper
+        .chat-head
+            span
+                h2 Чат
+        .chat-body
+            ul.messages#msgs
+        .chat-input
+            textarea.chat-text#chat_text(placeholder="Type your message here")
+    script(type="text/javascript").
+        var socket = io();
+        var $chat_text = $('#chat_text');
+        var $messages = $('#msgs');
+        $chat_text.keypress(function(e){
+           if(e.which == 13){
+               var message = $chat_text.val();
+               if(message.length > 1) {
+                   socket.emit('send message', message);
+                   var li = $('<li>', {
+                       css: {
+                           'text-align': 'left'
+                       }
+                   }).text(message);
+                   $messages.append(li);
+                   return false;
+               }
+           }
+        });
+
+        socket.on('send message', function(msg){
+            var li = $('<li>', {
+                css: {
+                    'text-align': 'right'
+                }
+            }).text(msg);
+            $messages.append(li);
+        });
