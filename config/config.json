@@ -1,0 +1,14 @@
+{
+  "session": {
+    "secret": "5CDD83E832E636F581323D9AC1BCB",
+    "key": "sid",
+    "cookie":{
+      "path": "/",
+      "httpOnly":true,
+      "maxAge": null
+    },
+    "resave": false,
+    "saveUninitialized": "true"
+  }
+
+}

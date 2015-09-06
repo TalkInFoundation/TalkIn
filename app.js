@@ -4,10 +4,13 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
+var config = require('./config');
+var mongoose = require('./libs/mongoose').db;
 var routes = require('./routes/index');
+var session = require('express-session');
 var users = require('./routes/users');
 var registration = require('./routes/registration');
+var login = require('./routes/login');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -24,16 +27,33 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+var MongoStore = require('connect-mongo')(session);
+app.use(session({
+    secret: config.get('session:secret'),
+    name: config.get('session:key'),
+    cookie: config.get('session:cookie'),
+    store: new MongoStore({mongooseConnection: mongoose.connection}),
+    resave: config.get('session:resave'),
+    saveUninitialized: config.get('session:saveUninitialized')
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(require('./middleware/usermiddleware'));
 
 app.use('/', routes);
 app.use('/users', users);
 
 
-app.post('/registration', registration.send_data);
+app.post('/registration', registration.post);
 
-app.use('/registration', registration.registration);
+app.use('/registration', registration.get);
+
+app.post('/login', login.post);
+
+app.use('/login', login.get);
+
+app.post('/logout', login.logout);
 
 io.on('connection', function(socket){
   socket.on('send message', function(msg){

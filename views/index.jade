@@ -1,6 +1,11 @@
 extends layout
 
 block content
+    if user
+        | Вы вошли.
+        a#logout Выйти
+    else
+        | Вы не вошли.
     .chat-wrapper
         .chat-head
             span
@@ -28,7 +33,11 @@ block content
                }
            }
         });
-
+        $('#logout').on('click', function(){
+            $.post('/logout', function(data){
+                $('#logout').text("Вы вышли!");
+            });
+        });
         socket.on('send message', function(msg){
             var li = $('<li>', {
                 css: {

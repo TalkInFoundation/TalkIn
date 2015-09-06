@@ -1,5 +1,5 @@
 var crypto = require('crypto');
-
+var async = require('async');
 var mongoose = require('../libs/mongoose').db,
     Schema = mongoose.Schema;
 
@@ -30,6 +30,55 @@ schema.methods.encryptPassword = function(password){
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
 };
 
+schema.statics.createUser = function(username, password, repeat_password, email, callback){
+    var User = this;
+    async.waterfall([
+        function(callback){
+            User.findOne({username: nickname}, callback);
+        },
+
+        function(user, callback){
+            if(user){
+                console.log(user);
+                return callback(new Error("Пользователь существует!"))
+            }
+            else{
+                if(password !== repeat_password){
+                    return callback(new Error("Пароли не совпадают!"))
+                }
+                new User({
+                    username: nickname,
+                    password: password,
+                    email: email})
+                    .save(function(err){
+                        if(err) return callback(err);
+                        callback(null, user);
+                    })
+            }
+        }], callback);
+};
+
+schema.statics.login = function(username, password, callback){
+    var User = this;
+    async.waterfall([
+        function(callback){
+            User.findOne({username: username}, callback);
+        },
+
+        function(user, callback){
+            if(user){
+                if(user.checkPassword(password)){
+                    callback(null, user);
+                }
+                else{
+                    callback(new Error("Вы ввели неверный пароль!"))
+                }
+            }
+            else{
+                callback(new Error("Такого пользователя не существует."))
+            }
+        }], callback);
+};
 //schema.path('email').validate(function (email) {
 //    var emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 //    return emailRegex.test(email.text);
