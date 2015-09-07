@@ -88,7 +88,7 @@ module.exports = function(server){
         if(socket.request.user){
             var username = socket.request.user.get('username');
             users[username] = socket;
-            socket.emit('join', username);
+            socket.broadcast.emit('join', username);
             socket.on('send message', function(msg){
                 socket.broadcast.emit('send message', msg);
             });

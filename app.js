@@ -6,6 +6,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var config = require('./config');
 var mongoose = require('./libs/mongoose').db;
+
+var AuthError = require('./errors/AuthError').AuthError;
+
+
 var routes = require('./routes/index');
 var session = require('express-session');
 var users = require('./routes/users');
@@ -37,6 +41,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(require('./middleware/usermiddleware'));
+var checkAuth = require('./middleware/checkAuth');
 
 
 
@@ -50,6 +55,15 @@ app.use('/login', login.get);
 app.post('/logout', login.logout);
 
 
+//redirect if autherror on /login url
+app.use(function(err, req, res, next){
+    if(err instanceof AuthError){
+        var msg = AuthError.message;
+        res.redirect('/login');
+        next();
+    }
+    next(err);
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -86,7 +100,7 @@ app.use(function(err, req, res, next) {
 http.listen(3000, function(){
     console.log('Server started. Port: 3000');
 });
-require('./socket')(http);
-
+var io = require('./socket')(http);
+app.set('io', io);
 
 module.exports = app;
