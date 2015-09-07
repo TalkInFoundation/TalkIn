@@ -5,7 +5,7 @@ var sessionStore = require('../libs/sessionStore');
 var config = require('../config');
 var HttpError = require('../errors/HttpError').HttpError;
 var User = require('../models/users').User;
-
+var _ = require('underscore');
 function LoadSession(sid, callback){
     sessionStore.load(sid, function(err, session){
         if(arguments.length == 0){
@@ -18,7 +18,7 @@ function LoadSession(sid, callback){
 }
 
 function GetUser(session, callback){
-    if(!session.user){
+    if(session == null){
         return callback(null, null);
     }
 
@@ -55,7 +55,6 @@ function auth(handshake, callback){
         }
     ], function(err){
         if(!err){
-            console.log("test");
             return callback(true);
         }
         if(err instanceof HttpError){
@@ -92,9 +91,14 @@ module.exports = function(server){
             socket.on('send message', function(msg){
                 socket.broadcast.emit('send message', msg);
             });
+            socket.on('clients:get:online', function(){
+                var users_online = _.filter(_.keys(users), function(user){return username != user});
+                socket.emit('clients:get:online', users_online);
+            });
 
             socket.on('disconnect', function(){
                 socket.broadcast.emit('leave', username);
+                delete users[username];
             })
         }else{
             socket.emit('not logged in');

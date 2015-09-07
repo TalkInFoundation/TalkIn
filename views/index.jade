@@ -7,6 +7,7 @@ block content
     else
         | Вы не вошли.
     .chat-wrapper
+        .connected-users#connected_users
         .chat-head
             span
                 h2 Чат
@@ -18,6 +19,11 @@ block content
         var socket = io();
         var $chat_text = $('#chat_text');
         var $messages = $('#msgs');
+
+        /* GET users online */
+        socket.emit('clients:get:online');
+        /*  END  */
+
         $chat_text.keypress(function(e){
            if(e.which == 13){
                var message = $chat_text.val();
@@ -46,6 +52,13 @@ block content
             }).text(msg);
             $messages.append(li);
         });
+        socket.on('clients:get:online', function(users){
+            users.forEach(function(user) {
+                        $('#connected_users').append("<p>"+user+"</p>");
+                    }
+            );
+        });
+
         socket.on('join', function(username){
             var li = $('<li>', {
                 css: {

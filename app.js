@@ -58,7 +58,8 @@ app.post('/logout', login.logout);
 //redirect if autherror on /login url
 app.use(function(err, req, res, next){
     if(err instanceof AuthError){
-        var msg = AuthError.message;
+        var msg = err.message;
+        req.session.isAuthError = true;
         res.redirect('/login');
         next();
     }
@@ -78,7 +79,6 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
-      console.log(err.stack);
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,

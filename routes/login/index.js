@@ -3,7 +3,12 @@ var User = require('../../models/users').User;
 var async = require('async');
 
 exports.get = function(req, res, next) {
-    res.render('login');
+    var err;
+    if(req.session.isAuthError){
+        err = "Вы не вошли на сайт!";
+        req.session.isAuthError = null;
+    }
+    res.render('login', {error: err});
 };
 
 exports.post = function(req, res, next){

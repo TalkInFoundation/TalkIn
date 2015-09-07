@@ -34,28 +34,28 @@ schema.statics.createUser = function(username, password, repeat_password, email,
     var User = this;
     async.waterfall([
         function(callback){
-            User.findOne({username: nickname}, callback);
+            User.findOne({username: username}, callback);
         },
 
         function(user, callback){
             if(user){
-                console.log(user);
                 return callback(new Error("Пользователь существует!"))
             }
             else{
                 if(password !== repeat_password){
                     return callback(new Error("Пароли не совпадают!"))
                 }
-                new User({
-                    username: nickname,
+                var _user = new User({
+                    username: username,
                     password: password,
                     email: email})
                     .save(function(err){
                         if(err) return callback(err);
-                        callback(null, user);
+                        callback(null, _user);
                     })
             }
-        }], callback);
+        }
+    ], callback);
 };
 
 schema.statics.login = function(username, password, callback){

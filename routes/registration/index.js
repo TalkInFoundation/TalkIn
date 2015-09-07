@@ -1,6 +1,8 @@
 var express = require('express');
 var User = require('../../models/users').User;
 var async = require('async');
+var mongoose = require('../../libs/mongoose').db;
+var _ = require('underscore');
 
 exports.get = function(req, res, next) {
     res.render('registration');
@@ -16,9 +18,12 @@ exports.post = function(req, res, next){
         if(err){
             return next(err);
         }
-        req.session.user = user._id;
-        res.send("index");
-        res.end();
+        User.login(nickname, password, function(err, user){
+            if(err) return next(err);
+            req.session.user = user._id;
+            res.redirect("/");
+            res.end();
+        });
     });
 
 };

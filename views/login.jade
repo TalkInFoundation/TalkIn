@@ -1,6 +1,9 @@
 extends layout
 
 block content
+    .error
+        if error
+            p= error
     form(action=" ", method="post")
         input(type="text", name="username" placeholder="Логин")
         input(type="password", name="password" placeholder="Пароль")
