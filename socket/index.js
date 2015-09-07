@@ -88,12 +88,25 @@ module.exports = function(server){
             var username = socket.request.user.get('username');
             users[username] = socket;
             socket.broadcast.emit('clients:join', username);
-            socket.on('chat:send_message', function(msg){
-                socket.broadcast.emit('chat:send_message', msg);
+            socket.on('chat:send_message', function(msg, whisper){
+                socket.broadcast.emit('chat:send_message', msg, whisper);
             });
             socket.on('clients:get:online', function(){
                 var users_online = _.filter(_.keys(users), function(user){return username != user});
                 socket.emit('clients:get:online', users_online);
+            });
+
+            socket.on('clients:get:information', function(){
+                var userinfo = {
+                    username: username
+                    //...
+                };
+                socket.emit('clients:get:information', userinfo);
+            });
+
+
+            socket.on('chat:send_message:private', function(data){
+                users[data.to].emit('chat:send_message', data.msg, true);
             });
 
             socket.on('disconnect', function(){

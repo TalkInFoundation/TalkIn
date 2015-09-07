@@ -19,17 +19,43 @@ block content
         var socket = io();
         var $chat_text = $('#chat_text');
         var $messages = $('#msgs');
+        var _users = [];
+        var userinfo = {};
+
 
         /* GET users online */
         socket.emit('clients:get:online');
         /*  END  */
 
+        /* GET user informatio */
+        socket.emit('clients:get:information');
+
         $chat_text.keypress(function(e){
            if(e.which == 13){
                var message = $chat_text.val();
                if(message.length > 1) {
+                   if(message.length > 3){ //private message
+                       var whisper_regex = /^[\\\/]w\s([A-Za-z0-9_]+)\s(.+)/i;
+                       var match = message.match(whisper_regex);
+                       if(match){//if username and msg provided
+                           var to = match[1];
+                           var msg = match[2];
+                           if(to === userinfo.username) return false;// we don't need to send private messages to ourselves
+                           if($.inArray(to, _users) !== -1){
+                               socket.emit('chat:send_message:private', {to: to, msg: msg});
+                               sendMessage(msg, 'left', true);
+                               return false;
+                           }
+                           else{
+                               //...
+                               return false;
+                           }
+                       }
+
+                   }
+
                    socket.emit('chat:send_message', message);
-                   sendMessage(message, 'left');
+                   sendMessage(message, 'left', false);
                    return false;
                }
            }
@@ -39,28 +65,39 @@ block content
                 $('#logout').text("Вы вышли!");
             });
         });
-        socket.on('chat:send_message', function(msg){
-            sendMessage(msg, "right");
+        socket.on('chat:send_message', function(msg, whisper){
+            sendMessage(msg, "right", whisper);
         });
+
+
         socket.on('clients:get:online', function(users){
             users.forEach(function(user) {
                         $('#connected_users').append("<p>"+user+"</p>");
+                        _users.push(user);
                     }
             );
         });
 
+        socket.on('clients:get:information', function(data){
+            userinfo = _.clone(data);
+        });
+
         socket.on('clients:join', function(username){
-            sendMessage(username + "connected", "center");
+            sendMessage(username + "connected", "center", false);
         });
 
         socket.on('not logged in', function(){
             location.href = "/login";
         });
 
-        var sendMessage = function(message, align){
+        var sendMessage = function(message, align, whisper){
+            var color = "white";
+            if(whisper) color = "pink";
+
             var li = $("<li>", {
                 css: {
-                    'text-align': align
+                    'text-align': align,
+                    'color': color
                 }
             }).text(message);
             $messages.append(li);
