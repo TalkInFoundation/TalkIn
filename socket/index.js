@@ -87,9 +87,9 @@ module.exports = function(server){
         if(socket.request.user){
             var username = socket.request.user.get('username');
             users[username] = socket;
-            socket.broadcast.emit('join', username);
-            socket.on('send message', function(msg){
-                socket.broadcast.emit('send message', msg);
+            socket.broadcast.emit('clients:join', username);
+            socket.on('chat:send_message', function(msg){
+                socket.broadcast.emit('chat:send_message', msg);
             });
             socket.on('clients:get:online', function(){
                 var users_online = _.filter(_.keys(users), function(user){return username != user});
@@ -97,7 +97,7 @@ module.exports = function(server){
             });
 
             socket.on('disconnect', function(){
-                socket.broadcast.emit('leave', username);
+                socket.broadcast.emit('clients:leave', username);
                 delete users[username];
             })
         }else{

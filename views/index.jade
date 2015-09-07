@@ -28,13 +28,8 @@ block content
            if(e.which == 13){
                var message = $chat_text.val();
                if(message.length > 1) {
-                   socket.emit('send message', message);
-                   var li = $('<li>', {
-                       css: {
-                           'text-align': 'left'
-                       }
-                   }).text(message);
-                   $messages.append(li);
+                   socket.emit('chat:send_message', message);
+                   sendMessage(message, 'left');
                    return false;
                }
            }
@@ -44,13 +39,8 @@ block content
                 $('#logout').text("Вы вышли!");
             });
         });
-        socket.on('send message', function(msg){
-            var li = $('<li>', {
-                css: {
-                    'text-align': 'right'
-                }
-            }).text(msg);
-            $messages.append(li);
+        socket.on('chat:send_message', function(msg){
+            sendMessage(msg, "right");
         });
         socket.on('clients:get:online', function(users){
             users.forEach(function(user) {
@@ -59,15 +49,19 @@ block content
             );
         });
 
-        socket.on('join', function(username){
-            var li = $('<li>', {
-                css: {
-                    'text-align': 'center'
-                }
-            }).text(username + " connected");
-            $messages.append(li);
+        socket.on('clients:join', function(username){
+            sendMessage(username + "connected", "center");
         });
 
         socket.on('not logged in', function(){
             location.href = "/login";
         });
+
+        var sendMessage = function(message, align){
+            var li = $("<li>", {
+                css: {
+                    'text-align': align
+                }
+            }).text(message);
+            $messages.append(li);
+        };
