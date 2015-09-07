@@ -13,10 +13,6 @@ var registration = require('./routes/registration');
 var login = require('./routes/login');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
-http.listen(3000, function(){
-  console.log('Server started. Port: 3000');
-});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -28,41 +24,33 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 var MongoStore = require('connect-mongo')(session);
+var sessionStore = require('./libs/sessionStore');
+app.use(cookieParser(config.get('session:secret')));
 app.use(session({
     secret: config.get('session:secret'),
     name: config.get('session:key'),
-    cookie: config.get('session:cookie'),
-    store: new MongoStore({mongooseConnection: mongoose.connection}),
+    store: sessionStore,
     resave: config.get('session:resave'),
     saveUninitialized: config.get('session:saveUninitialized')
 }));
-app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(require('./middleware/usermiddleware'));
 
+
+
+//Routes
 app.use('/', routes);
 app.use('/users', users);
-
-
 app.post('/registration', registration.post);
-
 app.use('/registration', registration.get);
-
 app.post('/login', login.post);
-
 app.use('/login', login.get);
-
 app.post('/logout', login.logout);
 
-io.on('connection', function(socket){
-  socket.on('send message', function(msg){
-      socket.broadcast.emit('send message', msg);
-  });
-  socket.on('disconnect', function(){
 
-  })
-});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -94,6 +82,11 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+http.listen(3000, function(){
+    console.log('Server started. Port: 3000');
+});
+require('./socket')(http);
 
 
 module.exports = app;

@@ -46,3 +46,15 @@ block content
             }).text(msg);
             $messages.append(li);
         });
+        socket.on('join', function(username){
+            var li = $('<li>', {
+                css: {
+                    'text-align': 'center'
+                }
+            }).text(username + " connected");
+            $messages.append(li);
+        });
+
+        socket.on('not logged in', function(){
+            location.href = "/login";
+        });
