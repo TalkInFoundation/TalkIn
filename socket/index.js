@@ -5,6 +5,7 @@ var sessionStore = require('../libs/sessionStore');
 var config = require('../config');
 var HttpError = require('../errors/HttpError').HttpError;
 var User = require('../models/users').User;
+var History = require('../models/history').History;
 var _ = require('underscore');
 function LoadSession(sid, callback){
     sessionStore.load(sid, function(err, session){
@@ -88,25 +89,49 @@ module.exports = function(server){
             var username = socket.request.user.get('username');
             users[username] = socket;
             socket.broadcast.emit('clients:join', username);
-            socket.on('chat:send_message', function(msg, whisper){
-                socket.broadcast.emit('chat:send_message', msg, whisper);
-            });
-            socket.on('clients:get:online', function(){
-                var users_online = _.filter(_.keys(users), function(user){return username != user});
-                socket.emit('clients:get:online', users_online);
-            });
 
-            socket.on('clients:get:information', function(){
-                var userinfo = {
-                    username: username
-                    //...
-                };
-                socket.emit('clients:get:information', userinfo);
+            var userinfo = {
+                username: username
+                //...
+            };
+            socket.emit('clients:get:information', userinfo);
+
+            var users_online = _.filter(_.keys(users), function(user){return username != user});
+            socket.emit('clients:get:online', users_online);
+
+
+
+            History.find({}, function(err, data){
+                if(err) return next(err);
+
+                if(data.length > 0){
+
+                    socket.emit('clients:get:history', data);
+                }
             });
+            socket.on('chat:send_message', function(msg){
+                socket.broadcast.emit('chat:send_message', msg);
+
+                var history = new History({
+                    username: username,
+                    message: msg
+                });
+
+                history.save(function(err){
+                    if(err) return next(err);
+                });
+
+            });
+            //socket.on('clients:get:online', function(){
+            //    var users_online = _.filter(_.keys(users), function(user){return username != user});
+            //    socket.emit('clients:get:online', users_online);
+            //});
+
+
 
 
             socket.on('chat:send_message:private', function(data){
-                users[data.to].emit('chat:send_message', data.msg, true);
+                users[data.to].emit('chat:send_message:private', data.msg);
             });
 
             socket.on('disconnect', function(){

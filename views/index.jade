@@ -24,11 +24,9 @@ block content
 
 
         /* GET users online */
-        socket.emit('clients:get:online');
         /*  END  */
 
         /* GET user informatio */
-        socket.emit('clients:get:information');
 
         $chat_text.keypress(function(e){
            if(e.which == 13){
@@ -65,12 +63,34 @@ block content
                 $('#logout').text("Вы вышли!");
             });
         });
-        socket.on('chat:send_message', function(msg, whisper){
-            sendMessage(msg, "right", whisper);
+        socket.on('chat:send_message', function(msg){
+            sendMessage(msg, "right", false);
+        });
+
+        socket.on('chat:send_message:private', function(msg){
+            sendMessage(msg, 'right', true);
         });
 
 
+
+        socket.on('clients:get:history', function(data){
+            function write(msg, first, second){
+                console.log(first, " = ", second);
+                if(first === second){
+                    sendMessage(msg, 'left', false);
+                }
+                else{
+                    sendMessage(msg, 'right', false);
+                }
+            }
+
+            _.each(data, function(record){
+                write(record.message, record.username, userinfo.username)
+            });
+        });
+
         socket.on('clients:get:online', function(users){
+            console.log('test');
             users.forEach(function(user) {
                         $('#connected_users').append("<p>"+user+"</p>");
                         _users.push(user);
