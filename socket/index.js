@@ -101,7 +101,7 @@ module.exports = function(server){
 
 
 
-            History.find({}, function(err, data){
+            History.find({}).sort({created:'asc'}).exec(function(err, data){
                 if(err) return next(err);
 
                 if(data.length > 0){
@@ -109,9 +109,8 @@ module.exports = function(server){
                     socket.emit('clients:get:history', data);
                 }
             });
-            socket.on('chat:send_message', function(msg){
-                socket.broadcast.emit('chat:send_message', msg);
 
+            socket.on('chat:send_message', function(msg){
                 var history = new History({
                     username: username,
                     message: msg
@@ -120,7 +119,21 @@ module.exports = function(server){
                 history.save(function(err){
                     if(err) return next(err);
                 });
+                var _msg = {
+                    message: msg,
+                    _id: history._id,
+                    username: username
+                };
 
+                io.emit('chat:send_message', _msg);
+
+            });
+
+            socket.on('chat:edit_message', function(id, msg){
+                History.findOneAndUpdate({_id: id}, {message: msg}, function(err, data){
+                    if(err) next(err);
+                    socket.emit('chat:edit_message', msg, id);
+                });
             });
             //socket.on('clients:get:online', function(){
             //    var users_online = _.filter(_.keys(users), function(user){return username != user});

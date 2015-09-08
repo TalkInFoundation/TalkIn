@@ -53,7 +53,7 @@ block content
                    }
 
                    socket.emit('chat:send_message', message);
-                   sendMessage(message, 'left', false);
+                   //sendMessage(message, 'left', false);
                    return false;
                }
            }
@@ -63,8 +63,8 @@ block content
                 $('#logout').text("Вы вышли!");
             });
         });
-        socket.on('chat:send_message', function(msg){
-            sendMessage(msg, "right", false);
+        socket.on('chat:send_message', function(data){
+           sendCheck(data, userinfo.username);
         });
 
         socket.on('chat:send_message:private', function(msg){
@@ -72,20 +72,21 @@ block content
         });
 
 
+        function sendCheck(data, second_username){
+            if(data.username === second_username){
+                sendMessage(data.message, 'left', false, data._id);
+            }
+            else{
+                sendMessage(data.message, 'right', false, data._id);
+            }
+        }
+
 
         socket.on('clients:get:history', function(data){
-            function write(msg, first, second){
-                console.log(first, " = ", second);
-                if(first === second){
-                    sendMessage(msg, 'left', false);
-                }
-                else{
-                    sendMessage(msg, 'right', false);
-                }
-            }
 
             _.each(data, function(record){
-                write(record.message, record.username, userinfo.username)
+                console.log(record);
+                sendCheck(record, userinfo.username)
             });
         });
 
@@ -109,16 +110,26 @@ block content
         socket.on('not logged in', function(){
             location.href = "/login";
         });
+        function parseId(id){
+            return id.substring(4);
+        }
 
-        var sendMessage = function(message, align, whisper){
+        socket.on('chat:edit_message', function(msg, id){
+            $('#msg_'+ id).text(msg);
+        });
+
+        var sendMessage = function(message, align, whisper, id){
             var color = "white";
             if(whisper) color = "pink";
 
             var li = $("<li>", {
+                'id': 'msg_'+id,
+                'class': 'test',
                 css: {
                     'text-align': align,
                     'color': color
                 }
             }).text(message);
+
             $messages.append(li);
         };
