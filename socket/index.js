@@ -144,7 +144,12 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message:private', function(data){
-                users[data.to].emit('chat:send_message:private', data.msg);
+                var _msg = {
+                    message: data.msg,
+                    username: username
+                };
+
+                users[data.to].emit('chat:send_message:private', _msg);
             });
 
             socket.on('disconnect', function(){

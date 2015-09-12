@@ -7,14 +7,16 @@ block content
     else
         | Вы не вошли.
     .chat-wrapper
-        .connected-users#connected_users
         .chat-head
             span
-                h2 Чат
+                h2 Chat
         .chat-body
-            ul.messages#msgs
-        .chat-input
-            textarea.chat-text#chat_text(placeholder="Type your message here")
+            .chat-sidebar#connected_users
+            .chat-main
+                ul.messages#msgs
+                .chat-input
+                    textarea.chat-text#chat_text(placeholder="Type your message here")
+            .clear
     script(type="text/javascript").
         var socket = io();
         var $chat_text = $('#chat_text');
@@ -27,6 +29,7 @@ block content
         /*  END  */
 
         /* GET user informatio */
+
 
         $chat_text.keypress(function(e){
            if(e.which == 13){
@@ -41,7 +44,7 @@ block content
                            if(to === userinfo.username) return false;// we don't need to send private messages to ourselves
                            if($.inArray(to, _users) !== -1){
                                socket.emit('chat:send_message:private', {to: to, msg: msg});
-                               sendMessage(msg, 'left', true);
+                               $chat_text.val("");
                                return false;
                            }
                            else{
@@ -53,6 +56,7 @@ block content
                    }
 
                    socket.emit('chat:send_message', message);
+                   $chat_text.val("");
                    //sendMessage(message, 'left', false);
                    return false;
                }
@@ -64,36 +68,36 @@ block content
             });
         });
         socket.on('chat:send_message', function(data){
-           sendCheck(data, userinfo.username);
+           sendCheck(data, false);
         });
 
-        socket.on('chat:send_message:private', function(msg){
-            sendMessage(msg, 'right', true);
+        socket.on('chat:send_message:private', function(data){
+            sendCheck(data, true);
         });
 
 
-        function sendCheck(data, second_username){
-            if(data.username === second_username){
-                sendMessage(data.message, 'left', false, data._id);
+        function sendCheck(data, whisper){
+            var isMe = data.username == userinfo.username;
+            if(whisper){
+                sendPrivateMessage(data.message, data.username, isMe);
+                return false;
             }
-            else{
-                sendMessage(data.message, 'right', false, data._id);
-            }
+            sendMessage(data.message, data.username, isMe, data._id);
         }
 
 
         socket.on('clients:get:history', function(data){
 
             _.each(data, function(record){
-                console.log(record);
-                sendCheck(record, userinfo.username)
+                sendCheck(record, false)
             });
+
         });
 
         socket.on('clients:get:online', function(users){
             console.log('test');
             users.forEach(function(user) {
-                        $('#connected_users').append("<p>"+user+"</p>");
+                        $('#connected_users').append("<p class='user-field'>"+user+"</p>");
                         _users.push(user);
                     }
             );
@@ -104,7 +108,7 @@ block content
         });
 
         socket.on('clients:join', function(username){
-            sendMessage(username + "connected", "center", false);
+            sendMessage(username + "connected", false);
         });
 
         socket.on('not logged in', function(){
@@ -118,18 +122,51 @@ block content
             $('#msg_'+ id).text(msg);
         });
 
-        var sendMessage = function(message, align, whisper, id){
-            var color = "white";
-            if(whisper) color = "pink";
 
-            var li = $("<li>", {
-                'id': 'msg_'+id,
-                'class': 'test',
-                css: {
-                    'text-align': align,
-                    'color': color
-                }
+
+        $(document).on('click', '.user-field', function(){
+            var username = $(this).text();
+            var prev_msg = $chat_text.val();
+            var new_msg = "/w " + username + " " + prev_msg;
+            $chat_text.val(new_msg);
+        });
+
+
+
+         var sendMessage = function(message, username, isMe, id){
+             var me = isMe ? ' me' : '';
+             var p = $("<p>", {
+                 'class': 'message-header'
+                }).text(username);
+             var p2 = $("<p>", {
+                 'class': 'message'
+             }).text(message);
+
+
+             var li = $("<li>", {
+                 'id': 'msg_'+id,
+                 'class': 'message-wrapper public'  + me
+             });
+             li.append(p);
+             li.append(p2);
+            $messages.append(li);
+        };
+
+        var sendPrivateMessage = function(message, username, isMe){
+            var me = isMe ? ' me' : '';
+            var p = $("<p>", {
+                'class': 'message-header'
+            }).text(username);
+            var p2 = $("<p>", {
+                'class': 'message'
             }).text(message);
 
+            var li = $("<li>", {
+                'class': 'message-wrapper private' + me
+            });
+
+            li.append(p);
+            li.append(p2);
             $messages.append(li);
+
         };
