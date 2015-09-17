@@ -4,10 +4,12 @@ var async = require('async');
 
 exports.get = function(req, res, next) {
     var err;
+    //require('./../../socket/test')(req.app.use('io'));
     if(req.session.isAuthError){
         err = "Вы не вошли на сайт!";
         req.session.isAuthError = null;
     }
+    console.log("rendering");
     res.render('login', {error: err});
 };
 
@@ -23,5 +25,5 @@ exports.post = function(req, res, next){
 };
 exports.logout = function(req, res){
     req.session.destroy();
-    res.redirect('/');
+    res.redirect('/login');
 };

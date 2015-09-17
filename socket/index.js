@@ -65,9 +65,21 @@ function auth(handshake, callback){
     });
 }
 
+function checkIfAuth(handshake){
+    auth(handshake, function(accepted){
+        if(accepted){
+            return true;
+        }
+        if(!accepted){
+            return false;
+        }
+        next(accepted); // fatal error!
+    });
+}
+
 module.exports = function(server){
     var io = require('socket.io').listen(server);
-
+    //var io = server;
     io.use(function(socket, next){
         var handshake = socket.request;
         auth(handshake, function(accepted){
@@ -85,6 +97,7 @@ module.exports = function(server){
 
     var users = {};
     io.sockets.on('connection', function(socket){
+        console.log("connected to room.js api");
         if(socket.request.user){
             var username = socket.request.user.get('username');
             users[username] = socket;
@@ -158,6 +171,7 @@ module.exports = function(server){
             })
         }else{
             socket.emit('not logged in');
+            socket.disconnect();
         }
 
 

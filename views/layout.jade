@@ -9,8 +9,9 @@ html
         script(src="http://underscorejs.org/underscore-min.js")
 
     body
-    .header-wrapper
-      block header
+    header
+        a(href="/")= title
+        block header
     .content-wrapper
       block content
     .footer-wrapper

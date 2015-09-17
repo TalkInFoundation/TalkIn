@@ -4,6 +4,7 @@
     display: inline-block;
     position: relative;
     overflow: hidden;
+    border: 1px solid #DCDCDC;
 }
 
 .chat-head {

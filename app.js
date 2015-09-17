@@ -9,15 +9,15 @@ var mongoose = require('./libs/mongoose').db;
 
 var AuthError = require('./errors/AuthError').AuthError;
 
-
-var routes = require('./routes/index');
+var main = require('./routes/main');
+var room = require('./routes/room');
 var session = require('express-session');
-var users = require('./routes/users');
 var registration = require('./routes/registration');
 var login = require('./routes/login');
 var app = express();
 var http = require('http').Server(app);
-
+var io = require('./socket')(http);
+app.set('io', io);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -38,6 +38,7 @@ app.use(session({
     saveUninitialized: config.get('session:saveUninitialized')
 }));
 
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(require('./middleware/usermiddleware'));
@@ -46,14 +47,15 @@ var checkAuth = require('./middleware/checkAuth');
 
 
 //Routes
-app.use('/', routes);
-app.use('/users', users);
+
+app.use('/room', checkAuth, room.get());
 app.post('/registration', registration.post);
 app.use('/registration', registration.get);
 app.post('/login', login.post);
 app.use('/login', login.get);
 app.post('/logout', login.logout);
-
+app.post('/', main.post);
+app.use('/', main.get);
 
 //redirect if autherror on /login url
 app.use(function(err, req, res, next){
@@ -100,7 +102,7 @@ app.use(function(err, req, res, next) {
 http.listen(3000, function(){
     console.log('Server started. Port: 3000');
 });
-var io = require('./socket')(http);
-app.set('io', io);
+
+
 
 module.exports = app;
