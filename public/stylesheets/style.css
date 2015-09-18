@@ -54,3 +54,32 @@ textarea:focus::-webkit-input-placeholder { color:transparent; }
 textarea:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
 textarea:focus::-moz-placeholder { color:transparent; } /* FF 19+ */
 textarea:focus:-ms-input-placeholder { color:transparent; } /* IE 10+ */
+
+input[type=text],
+input[type=password],
+input[type=email] {
+    padding: 5px;
+    border: solid 1px #ccc;
+}
+input[type=text]:focus,
+input[type=password]:focus,
+input[type=email]:focus {
+    border-color: #4790D2;
+    outline: 0;
+}
+
+input[type=button],
+input[type=submit] {
+    background: #4790D2;
+    border: 2px solid #4790D2;
+    color: white;
+    padding: 3px;
+    transition: background-color 0.3s, color 0.3s, border 0.3s;
+    outline: 0;
+}
+
+input[type=button]:hover,
+input[type=submit]:hover {
+    background: white;
+    color: #4790D2;
+}
