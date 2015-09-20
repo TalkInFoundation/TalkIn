@@ -14,7 +14,7 @@ exports.post = function(req, res, nezt){
     var roomName = req.body.roomName;
     var roomSlug = req.body.roomSlug;
     var conference = new Conference({name: roomName, slug: roomSlug});
-    conference.addUser(req.user);
+    conference.addUser(req.user.username);
     conference.own = req.user;
     conference.save(function(err){
         if(err) return next(err);

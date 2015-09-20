@@ -6,6 +6,7 @@ var config = require('../config');
 var HttpError = require('../errors/HttpError').HttpError;
 var User = require('../models/users').User;
 var History = require('../models/history').History;
+var Conference = require('../models/room').Conference;
 var _ = require('underscore');
 function LoadSession(sid, callback){
     sessionStore.load(sid, function(err, session){
@@ -90,19 +91,44 @@ module.exports = function(server){
     confio.on('connection', function(socket){
         if(socket.request.user){
             var slug = socket.request._query['slug'];
-            socket.join(slug);
             var username = socket.request.user.get('username');
-            users[username] = socket;
-            socket.broadcast.to(slug).emit('clients:join', username);
+            Conference.findOne({slug: slug}, function(err, data){
+                if(err) return new HttpError(404);
 
+                if(!data.inConference(username)){
+                    data.addUser(username);
+                    data.save(function(err){
+                       if(err) throw new HttpError(404);
+                    });
+                }
+            });
+            var users = findClientsSocketByRoomId(slug);
+
+            console.log(users);
+
+            function findClientsSocketByRoomId(roomId) {
+                var res = {}
+                    , room = confio.adapter.rooms[roomId];
+                if (room) {
+                    for (var id in room) {
+                        res[confio.adapter.nsp.connected[id].client.request.user.username] = id;
+                    }
+                }
+                return res;
+            }
+
+            socket.join(slug);
+
+            socket.broadcast.to(slug).emit('clients:join', username);
             var userinfo = {
-                username: username
+                username: username,
+                user: users
                 //...
             };
             socket.emit('clients:get:information', userinfo);
 
-            var users_online = _.filter(_.keys(users), function(user){return username != user});
-            socket.emit('clients:get:online', users_online);
+            //var users_online = _.filter(_.keys(users), function(user){return username != user});
+            socket.emit('clients:get:online', _.keys(users));
 
 
 
@@ -150,12 +176,12 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message:private', function(data){
+                var _users = findClientsSocketByRoomId(slug);
                 var _msg = {
                     message: data.msg,
                     username: username
                 };
-                console.log(slug);
-                users[data.to].to(slug).emit('chat:send_message:private', _msg);
+                confio.connected[_users[data.to]].emit('chat:send_message:private', _msg);
             });
 
             socket.on('disconnect', function(){

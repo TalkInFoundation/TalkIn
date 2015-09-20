@@ -75,6 +75,7 @@ block content
         });
 
         socket.on('chat:send_message:private', function(data){
+            console.log(data);
             sendCheck(data, true);
         });
 
