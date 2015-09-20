@@ -65,22 +65,13 @@ function auth(handshake, callback){
     });
 }
 
-function checkIfAuth(handshake){
-    auth(handshake, function(accepted){
-        if(accepted){
-            return true;
-        }
-        if(!accepted){
-            return false;
-        }
-        next(accepted); // fatal error!
-    });
-}
+
 
 module.exports = function(server){
     var io = require('socket.io').listen(server);
+    var confio = io.of('/conferences');
     //var io = server;
-    io.use(function(socket, next){
+    confio.use(function(socket, next){
         var handshake = socket.request;
         auth(handshake, function(accepted){
             if(accepted){
@@ -96,12 +87,13 @@ module.exports = function(server){
 
 
     var users = {};
-    io.sockets.on('connection', function(socket){
-        console.log("connected to room.js api");
+    confio.on('connection', function(socket){
         if(socket.request.user){
+            var slug = socket.request._query['slug'];
+            socket.join(slug);
             var username = socket.request.user.get('username');
             users[username] = socket;
-            socket.broadcast.emit('clients:join', username);
+            socket.broadcast.to(slug).emit('clients:join', username);
 
             var userinfo = {
                 username: username
@@ -114,23 +106,24 @@ module.exports = function(server){
 
 
 
-            History.find({}).sort({created:'asc'}).exec(function(err, data){
+            History.find({conference: slug}).sort({created:'asc'}).exec(function(err, data){
                 if(err) return next(err);
-
                 if(data.length > 0){
-
                     socket.emit('clients:get:history', data);
                 }
             });
 
+
+
             socket.on('chat:send_message', function(msg){
                 var history = new History({
                     username: username,
-                    message: msg
+                    message: msg,
+                    conference: slug
                 });
 
                 history.save(function(err){
-                    if(err) return next(err);
+                    if(err){  return new HttpError("404")};
                 });
                 var _msg = {
                     message: msg,
@@ -138,14 +131,14 @@ module.exports = function(server){
                     username: username
                 };
 
-                io.emit('chat:send_message', _msg);
+                confio.to(slug).emit('chat:send_message', _msg);
 
             });
 
             socket.on('chat:edit_message', function(id, msg){
                 History.findOneAndUpdate({_id: id}, {message: msg}, function(err, data){
                     if(err) next(err);
-                    socket.emit('chat:edit_message', msg, id);
+                    confio.to(slug).emit('chat:edit_message', msg, id);
                 });
             });
             //socket.on('clients:get:online', function(){
@@ -161,12 +154,12 @@ module.exports = function(server){
                     message: data.msg,
                     username: username
                 };
-
-                users[data.to].emit('chat:send_message:private', _msg);
+                console.log(slug);
+                users[data.to].to(slug).emit('chat:send_message:private', _msg);
             });
 
             socket.on('disconnect', function(){
-                socket.broadcast.emit('clients:leave', username);
+                socket.to(slug).broadcast.emit('clients:leave', username);
                 delete users[username];
             })
         }else{

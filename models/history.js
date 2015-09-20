@@ -12,6 +12,10 @@ var schema = new Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    conference: {
+        type: String,
+        required: true
     }
 
 });

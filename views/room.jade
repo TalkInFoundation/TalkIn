@@ -16,9 +16,12 @@ block content
                 ul.messages#msgs
                 .chat-input
                     textarea.chat-text#chat_text(placeholder="Type your message here")
+        .input(type="hidden" id= slug class="slug")
             .clear
     script(type="text/javascript").
-        var socket = io();
+        var $slug = $('.slug').attr('id');
+        console.log($slug);
+        var socket = io.connect('/conferences', {query: 'slug='+$slug});
         var $chat_text = $('#chat_text');
         var $messages = $('#msgs');
         var _users = [];
@@ -87,7 +90,7 @@ block content
 
 
         socket.on('clients:get:history', function(data){
-
+            console.log(data);
             _.each(data, function(record){
                 sendCheck(record, false)
             });
@@ -95,7 +98,7 @@ block content
         });
 
         socket.on('clients:get:online', function(users){
-            console.log('test');
+            console.log(users);
             users.forEach(function(user) {
                         $('#connected_users').append("<p class='user-field'>"+user+"</p>");
                         _users.push(user);
@@ -105,6 +108,7 @@ block content
 
         socket.on('clients:get:information', function(data){
             userinfo = _.clone(data);
+            console.log(userinfo);
         });
 
         socket.on('clients:join', function(username){

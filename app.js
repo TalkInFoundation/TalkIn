@@ -48,7 +48,7 @@ var checkAuth = require('./middleware/checkAuth');
 
 //Routes
 
-app.use('/room', checkAuth, room.get());
+app.use('/conference/:slug', checkAuth, room.get());
 app.post('/registration', registration.post);
 app.use('/registration', registration.get);
 app.post('/login', login.post);

@@ -9,17 +9,24 @@ block content
         a.create-room Create room
         form(method="post" action=" " id="send_room")
             input(type="text" name="roomName" placeholder="Name of the room..." id="roomName")
+            input(type="text" name="roomSlug" placeholder="Enter slug of the room" id="roomSlug")
             a#submit_room Create
+    .room-list-wrapper
+        for conference in conferences
+            p(data-slug= conference.slug)= conference.name
+            a(href= "/conference/"+conference.slug) Enter
     script(type="text/javascript").
         $('.create-room').on('click', function(){
             $('#send_room').show();
         });
         $('#submit_room').on('click', function(){
-            var roomName = $('#roomName').val();
+            var $roomName = $('#roomName').val();
+            var $roomSlug = $('#roomSlug').val();
+
             $.ajax({
                 method: "POST",
                 url: "",
-                data: {roomName: roomName}
+                data: {roomName: $roomName, roomSlug:$roomSlug}
             })
                     .done(function (msg) {
                         alert("ok");
