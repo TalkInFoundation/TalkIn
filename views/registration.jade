@@ -1,16 +1,23 @@
 
-extends layout
+extends auth_layout
 
 block content
-    .error
-        if error
-            p= error
-    form(action="registration", method="post")
-        input(type="text", placeholder="Логин" name="nickname")
-        input(type="password", placeholder="Пароль", name="password")
-        input(type="password", placeholder="Повторите пароль", name="password_repeat")
-        input(type="email", placeholder="Электронная почта", name="email")
-        input(type="submit", value="Зарегистрироваться!")
+    .form-wrapper
+        .form-content
+            p TalkIn
+            .error
+                if error
+                    p= error
+            form(action="registration", method="post")
+                input(type="text", placeholder="Логин" name="nickname")
+                br
+                input(type="password", placeholder="Пароль", name="password")
+                br
+                input(type="password", placeholder="Повторите пароль", name="password_repeat")
+                br
+                input(type="email", placeholder="Электронная почта", name="email")
+                br
+                input(type="submit", value="Зарегистрироваться!")
     script(type="text/javascript").
         var socket = io();
 

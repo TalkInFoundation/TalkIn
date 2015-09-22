@@ -1,10 +1,15 @@
-extends layout
+extends auth_layout
 
 block content
-    .error
-        if error
-            p= error
-    form(action=" ", method="post")
-        input(type="text", name="username" placeholder="Логин")
-        input(type="password", name="password" placeholder="Пароль")
-        input(type="submit", value="Войти!")
+    .form-wrapper
+        .form-content
+            p TalkIn
+            .error
+                if error
+                    p= error
+            form(action=" ", method="post" class="login-form")
+                input(type="text", name="username" placeholder="Логин")
+                br
+                input(type="password", name="password" placeholder="Пароль")
+                br
+                input(type="submit", value="Войти!")
