@@ -160,10 +160,11 @@ block content
              });
              li.append(p);
              li.append(p2);
-             $messages.append(li);
-             if($messages[0].scrollTop == $messages[0].scrollHeight){
+             if($messages[0].scrollTop+$messages.height() == $messages[0].scrollHeight){
+                 $messages.append(li);
                  $messages.scrollTop($messages[0].scrollHeight);
              }
+             else $messages.append(li);
         };
 
         var sendPrivateMessage = function(message, username, isMe){
@@ -181,8 +182,9 @@ block content
 
             li.append(p);
             li.append(p2);
-            $messages.append(li);
-            if($messages[0].scrollTop == $messages[0].scrollHeight){
+            if($messages[0].scrollTop+$messages.height() == $messages[0].scrollHeight){
+                $messages.append(li);
                 $messages.scrollTop($messages[0].scrollHeight);
             }
+            else $messages.append(li);
         };
