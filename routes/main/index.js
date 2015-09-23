@@ -1,16 +1,11 @@
 var Conference = require('../../models/room').Conference;
+var express = require('express');
+var router = express.Router();
 
 
 
-exports.get = function(req, res, next) {
-    Conference.find({}, function(err, conferences){
-        if(err) return next(err);
-        res.render('index', {title: 'TalkIn', conferences: conferences});
-    });
-};
 
-
-exports.post = function(req, res, nezt){
+router.post('/', function(req, res, nezt){
     var roomName = req.body.roomName;
     var roomSlug = req.body.roomSlug;
     var conference = new Conference({name: roomName, slug: roomSlug});
@@ -20,4 +15,13 @@ exports.post = function(req, res, nezt){
         if(err) return next(err);
     });
     res.json({status: "ok"});
-};
+});
+
+router.get('/', function(req, res, next){
+    Conference.find({}, function(err, conferences){
+        if(err) return next(err);
+        res.render('index', {title: 'TalkIn', conferences: conferences});
+    });
+});
+
+module.exports = router;

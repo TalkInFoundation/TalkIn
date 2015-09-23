@@ -14,6 +14,7 @@ var room = require('./routes/room');
 var session = require('express-session');
 var registration = require('./routes/registration');
 var login = require('./routes/login');
+var profile = require('./routes/profile');
 var app = express();
 var http = require('http').Server(app);
 var io = require('./socket')(http);
@@ -41,23 +42,29 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(require('./middleware/usermiddleware'));
 var checkAuth = require('./middleware/checkAuth');
-
+app.use(require('./middleware/usermiddleware'));
 
 
 //Routes
 
-app.use('/conference/:slug', checkAuth, room.get());
-app.post('/registration', registration.post);
-app.use('/registration', registration.get);
-app.post('/login', login.post);
-app.use('/login', login.get);
-app.post('/logout', login.logout);
-app.post('/', main.post);
-app.use('/', main.get);
+app.use(checkAuth, profile);
+app.use(checkAuth, room);
+app.use(registration);
+app.use(login);
+//app.post('/logout', login.logout);
+app.use(checkAuth, main);
 
 //redirect if autherror on /login url
+
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
 app.use(function(err, req, res, next){
     if(err instanceof AuthError){
         var msg = err.message;
@@ -66,13 +73,6 @@ app.use(function(err, req, res, next){
         next();
     }
     next(err);
-});
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
 });
 
 // error handlers

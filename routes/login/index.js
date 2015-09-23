@@ -1,19 +1,20 @@
 var express = require('express');
 var User = require('../../models/users').User;
 var async = require('async');
+var router = express.Router();
 
-exports.get = function(req, res, next) {
+
+router.get('/login', function(req, res, next){
     var err;
-    //require('./../../socket/test')(req.app.use('io'));
     if(req.session.isAuthError){
         err = "Вы не вошли на сайт!";
         req.session.isAuthError = null;
     }
     console.log("rendering");
     res.render('login', {error: err});
-};
+});
 
-exports.post = function(req, res, next){
+router.post('/login', function(req, res, next){
     var username = req.body.username;
     var password = req.body.password;
     User.login(username, password, function(err, user){
@@ -22,8 +23,9 @@ exports.post = function(req, res, next){
         res.redirect("/");
         res.end();
     });
-};
-exports.logout = function(req, res){
-    req.session.destroy();
-    res.redirect('/login');
-};
+});
+module.exports = router;
+//router.logout = function(req, res){
+//    req.session.destroy();
+//    res.redirect('/login');
+//};

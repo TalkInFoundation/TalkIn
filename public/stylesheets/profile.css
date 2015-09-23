@@ -1,0 +1,26 @@
+.profile-wrapper{
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: #ededed;
+}
+
+.profile-middle{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.profile-content{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-thumbnail{
+    height: 140px;
+    width: 140px;
+    border-radius: 50%;
+    border: 3px solid #00B4FF;
+    display: inline-block;
+}

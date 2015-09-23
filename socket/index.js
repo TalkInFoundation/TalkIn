@@ -127,7 +127,7 @@ module.exports = function(server){
             };
             socket.emit('clients:get:information', userinfo);
 
-            //var users_online = _.filter(_.keys(users), function(user){return username != user});
+            //var users_online = _.filter(_.keys(profile), function(user){return username != user});
             socket.emit('clients:get:online', _.keys(users));
 
 
@@ -168,7 +168,7 @@ module.exports = function(server){
                 });
             });
             //socket.on('clients:get:online', function(){
-            //    var users_online = _.filter(_.keys(users), function(user){return username != user});
+            //    var users_online = _.filter(_.keys(profile), function(user){return username != user});
             //    socket.emit('clients:get:online', users_online);
             //});
 
