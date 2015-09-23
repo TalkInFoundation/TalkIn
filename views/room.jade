@@ -37,7 +37,7 @@ block content
         $chat_text.keypress(function(e){
            if(e.which == 13){
                var message = $chat_text.val();
-               if(message.length > 1) {
+               if(message.length > 0) {
                    if(message.length > 3){ //private message
                        var whisper_regex = /^[\\\/]w\s([A-Za-z0-9_]+)\s(.+)/i;
                        var match = message.match(whisper_regex);
@@ -161,7 +161,7 @@ block content
              li.append(p);
              li.append(p2);
              $messages.append(li);
-             if($messages.scrollTop == $messages[0].scrollHeight){
+             if($messages[0].scrollTop == $messages[0].scrollHeight){
                  $messages.scrollTop($messages[0].scrollHeight);
              }
         };
@@ -182,7 +182,7 @@ block content
             li.append(p);
             li.append(p2);
             $messages.append(li);
-            if($messages.scrollTop == $messages[0].scrollHeight){
+            if($messages[0].scrollTop == $messages[0].scrollHeight){
                 $messages.scrollTop($messages[0].scrollHeight);
             }
         };
