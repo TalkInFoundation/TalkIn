@@ -5,7 +5,7 @@ var HttpError = require('../../errors/HttpError').HttpError;
 var router = express.Router();
 
 
-router.get('/conference/:slug', function(req, res, next) {
+router.get('/conference/:slug', checkAuth, function(req, res, next) {
     var slug = req.params.slug;
     Conference.find({slug: slug}, function (err, data) {
         if (err) return next(err);
