@@ -10,7 +10,7 @@ router.post('/', function(req, res, nezt){
     var roomSlug = req.body.roomSlug;
     var conference = new Conference({name: roomName, slug: roomSlug});
     conference.addUser(req.user.username);
-    conference.own = req.user;
+    conference.owner = req.user.username;
     conference.save(function(err){
         if(err) return next(err);
     });

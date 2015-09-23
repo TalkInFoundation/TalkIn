@@ -31,6 +31,48 @@ header a {
 .create-room-wrapper{
     margin-top: 20px;
     text-align: center;
+    float: left;
+    display: inline-block;
+    width: 30%;
+}
+
+.room-table{
+    border-collapse: collapse;
+    width: 70%;
+    background-color: #F4F4F4;
+    border: 1px solid #DDD;
+}
+
+.number-cell{
+    width: 10%;
+}
+.name-cell{
+    width: 30px;
+}
+
+.room-table a{
+    color: #4790D2;
+    text-decoration: none;
+}
+.room-table th{
+    border-bottom: 1px solid #DCDCDC;
+    padding: 10px;
+}
+.room-table tr>td{
+    padding-bottom: 1.5em;
+    padding-top: 1.5em;
+    border-bottom: 1px solid #DDD;
+}
+
+
+
+
+.room-list-wrapper{
+    float: left;
+    margin-top: 10px;
+    display: inline-block;
+    width: 70%;
+    box-sizing: border-box;
 }
 .create-room-wrapper form{
     display: none;
@@ -48,6 +90,9 @@ header a {
     content:"";
     display:table;
     clear:both;
+}
+.content-wrapper{
+    text-align: center;
 }
 
 textarea:focus::-webkit-input-placeholder { color:transparent; }

@@ -1,10 +1,8 @@
 extends layout
 
 
+
 block content
-    .options-wrapper
-        ul.options
-            | Later...
     .create-room-wrapper
         a.create-room Create room
         form(method="post" action=" " id="send_room")
@@ -12,9 +10,20 @@ block content
             input(type="text" name="roomSlug" placeholder="Enter slug of the room" id="roomSlug")
             a#submit_room Create
     .room-list-wrapper
-        for conference in conferences
-            p(data-slug= conference.slug)= conference.name
-            a(href= "/conference/"+conference.slug) Enter
+        table.room-table
+            tr
+                th.number-cell #
+                th.name-cell Name
+                th.owner-cell Owner
+                th.online-cell Online
+            - var n = 0
+            for conference in conferences
+                tr
+                    td= ++n
+                    td
+                        a(data-slug= conference.slug href= "/conference/"+conference.slug)= conference.name
+                    td= conference.owner
+                    td later...
     script(type="text/javascript").
         $('.create-room').on('click', function(){
             $('#send_room').show();
