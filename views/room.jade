@@ -113,6 +113,8 @@ block content
         });
 
         socket.on('clients:join', function(username){
+            console.log(username);
+            $('#connected_users').append("<p class='user-field'>"+username+"</p>");
             sendMessage(username + "connected", false);
         });
 
@@ -127,6 +129,9 @@ block content
             $('#msg_'+ id).text(msg);
         });
 
+        socket.on('clients:leave', function(username){
+            $(".user-field:contains('"+ username +"')").remove();
+        });
 
 
         $(document).on('click', '.user-field', function(){

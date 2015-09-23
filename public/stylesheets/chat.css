@@ -35,6 +35,12 @@
 
 .messages{
     list-style: none;
+    width: 400px;
+    max-height: 400px;
+    overflow: auto;
+}
+.messages li p{
+    word-wrap: break-word;
 }
 .chat-main{
     float: left;
