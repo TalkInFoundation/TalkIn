@@ -94,7 +94,7 @@ module.exports = function(server){
             var username = socket.request.user.get('username');
             Conference.findOne({slug: slug}, function(err, data){
                 if(err) return new HttpError(404);
-                if(!data.length > 0) return new HttpError("Conference error!");
+                if(!data) return new HttpError("Conference error!");
                 if(!data.inConference(username)){
                     data.addUser(username);
                     data.save(function(err){
