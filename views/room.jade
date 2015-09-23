@@ -47,6 +47,7 @@ block content
                            if(to === userinfo.username) return false;// we don't need to send private messages to ourselves
                            if($.inArray(to, _users) !== -1){
                                socket.emit('chat:send_message:private', {to: to, msg: msg});
+                               sendPrivateMessage(msg, userinfo.username, true);
                                $chat_text.val("");
                                return false;
                            }
@@ -159,7 +160,10 @@ block content
              });
              li.append(p);
              li.append(p2);
-            $messages.append(li);
+             $messages.append(li);
+             if($messages.scrollTop == $messages[0].scrollHeight){
+                 $messages.scrollTop($messages[0].scrollHeight);
+             }
         };
 
         var sendPrivateMessage = function(message, username, isMe){
@@ -178,5 +182,7 @@ block content
             li.append(p);
             li.append(p2);
             $messages.append(li);
-
+            if($messages.scrollTop == $messages[0].scrollHeight){
+                $messages.scrollTop($messages[0].scrollHeight);
+            }
         };
