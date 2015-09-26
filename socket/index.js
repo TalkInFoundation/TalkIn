@@ -132,7 +132,7 @@ module.exports = function(server){
 
 
 
-            History.find({conference: slug}).sort({created:'asc'}).exec(function(err, data){
+            History.find({conference: slug}).sort({created:-1}).limit(15).exec(function(err, data){
                 if(err) return next(err);
                 if(data.length > 0){
                     socket.emit('clients:get:history', data);
@@ -141,19 +141,22 @@ module.exports = function(server){
 
 
 
-            socket.on('chat:send_message', function(msg){
+            socket.on('chat:send_message', function(data){
                 var history = new History({
                     username: username,
-                    message: msg,
-                    conference: slug
+                    message: data.message,
+                    conference: slug,
+                    images: data.images
                 });
 
                 history.save(function(err){
                     if(err){  return new HttpError("404")};
                 });
                 var _msg = {
-                    message: msg,
+                    message: data.message,
+                    images: data.images,
                     _id: history._id,
+                    time: history.created,
                     username: username
                 };
 
@@ -179,7 +182,8 @@ module.exports = function(server){
                 var _users = findClientsSocketByRoomId(slug);
                 var _msg = {
                     message: data.msg,
-                    username: username
+                    username: username,
+                    images: data.images
                 };
                 confio.connected[_users[data.to]].emit('chat:send_message:private', _msg);
             });

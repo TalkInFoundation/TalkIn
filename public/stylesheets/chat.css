@@ -95,3 +95,21 @@
     color: #fff;
     line-height: 0;
 }
+
+.chat-image-placeholder{
+    position: relative;
+    border: 1px solid #DCDCDC;
+    float: left;
+    display: inline-block;
+}
+
+.chat-image-close{
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.render-chat-image{
+    max-width: 200px;
+    max-height: 200px;
+}

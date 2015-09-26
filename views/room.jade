@@ -16,6 +16,7 @@ block content
                 ul.messages#msgs
                 .chat-input
                     textarea.chat-text#chat_text(placeholder="Type your message here")
+                .image-placeholder
         .input(type="hidden" id= slug class="slug")
             .clear
     script(type="text/javascript").
@@ -24,30 +25,59 @@ block content
         var socket = io.connect('/conferences', {query: 'slug='+$slug});
         var $chat_text = $('#chat_text');
         var $messages = $('#msgs');
+        var $imagePlaceholder = $('.image-placeholder');
         var _users = [];
         var userinfo = {};
-
+        var imagesArray = [];
 
         /* GET profile online */
         /*  END  */
 
         /* GET user informatio */
 
-
+        $chat_text.keyup(function(){
+            var message = $chat_text.val();
+            if(message.length>5){
+                var imageRegex = /(https?:\/\/.*\.(?:png|jpg))/;
+                var imageFound = message.match(imageRegex);
+                if(imageFound){
+                    if(imagesArray.indexOf(imageFound[0])!==-1) return false;
+                    var newMessage = message.replace(imageRegex, '');
+                    $chat_text.val(newMessage);
+                    var div = $('<div />', {
+                        class: 'chat-image-placeholder'
+                    });
+                    var p = $('<p />', {
+                        class: 'chat-image-close'
+                    }).text("✖");
+                    var img = $('<img />', {
+                        src: imageFound[0],
+                        width: "70",
+                        height:"70",
+                        class:"chat-image"
+                    });
+                    div.append(p);
+                    div.append(img);
+                    $imagePlaceholder.append(div);
+                    imagesArray.push(imageFound[0]);
+                }
+            }
+        });
         $chat_text.keypress(function(e){
-           if(e.which == 13){
-               var message = $chat_text.val();
-               if(message.length > 0) {
-                   if(message.length > 3){ //private message
-                       var whisper_regex = /^[\\\/]w\s([A-Za-z0-9_]+)\s(.+)/i;
+            var message = $chat_text.val();
+            if(e.which == 13){
+               if(message.length > 0 || imagesArray.length > 0) {
+                   if(message.length > 3){
+                       var whisper_regex = /^[\\\/]w\s([A-Za-z0-9_]+)\s(.*)/i;
                        var match = message.match(whisper_regex);
                        if(match){//if username and msg provided
                            var to = match[1];
                            var msg = match[2];
                            if(to === userinfo.username) return false;// we don't need to send private messages to ourselves
                            if($.inArray(to, _users) !== -1){
-                               socket.emit('chat:send_message:private', {to: to, msg: msg});
-                               sendPrivateMessage(msg, userinfo.username, true);
+                               socket.emit('chat:send_message:private', {to: to, msg: msg, images:imagesArray||[]});
+                               sendPrivateMessage(msg, userinfo.username, true, imagesArray);
+                               imagesArray = [];
                                $chat_text.val("");
                                return false;
                            }
@@ -58,8 +88,8 @@ block content
                        }
 
                    }
-
-                   socket.emit('chat:send_message', message);
+                   socket.emit('chat:send_message', {message: message, images:imagesArray||[]});
+                   imagesArray = [];
                    $chat_text.val("");
                    //sendMessage(message, 'left', false);
                    return false;
@@ -72,11 +102,10 @@ block content
             });
         });
         socket.on('chat:send_message', function(data){
-           sendCheck(data, false);
+            sendCheck(data, false);
         });
 
         socket.on('chat:send_message:private', function(data){
-            console.log(data);
             sendCheck(data, true);
         });
 
@@ -84,19 +113,29 @@ block content
         function sendCheck(data, whisper){
             var isMe = data.username == userinfo.username;
             if(whisper){
-                sendPrivateMessage(data.message, data.username, isMe);
+                sendPrivateMessage(data.message, data.username, isMe, data.images);
                 return false;
             }
-            sendMessage(data.message, data.username, isMe, data._id);
+            sendMessage(data.message, data.username, isMe, data._id, data.images);
         }
 
+        function temporarySwap(array) {
+            var left = null;
+            var right = null;
+            var length = array.length;
+            for (left = 0, right = length - 1; left < right; left += 1, right -= 1) {
+                var temporary = array[left];
+                array[left] = array[right];
+                array[right] = temporary;
+            }
+            return array;
+        }
 
         socket.on('clients:get:history', function(data){
-            console.log(data);
-            _.each(data, function(record){
+            var history = temporarySwap(data);
+            _.each(history, function(record){
                 sendCheck(record, false)
             });
-
         });
 
         socket.on('clients:get:online', function(users){
@@ -116,7 +155,7 @@ block content
         socket.on('clients:join', function(username){
             console.log(username);
             $('#connected_users').append("<p class='user-field'>"+username+"</p>");
-            sendMessage(username + "connected", false);
+            sendMOTD(username + " connected");
         });
 
         socket.on('not logged in', function(){
@@ -141,10 +180,49 @@ block content
             var new_msg = "/w " + username + " " + prev_msg;
             $chat_text.val(new_msg);
         });
+        $(document).on('click', '.chat-image-close', function(){
+            var parent = $(this).parent();
+            var url = $('img', parent).attr('src');
+            _.each(imagesArray, function(image){
+                if(url===image){
+                    var pos = imagesArray.indexOf(image);
+                    console.log(pos);
+                    imagesArray.splice(pos, 1);
+                }
+            });
+            parent.remove();
+        });
 
+        var renderImage = function(src, li){
+            li.append($('<img />', {
+                src: src,
+                class: 'render-chat-image'
+            }));
+            $messages.append(li);
+        };
 
+        var displayImages = function(li, images){
+            if(images.length > 0){
+                _.each(images, function(src){
+                    renderImage(src, li);
+                });
+            }
+        };
 
-         var sendMessage = function(message, username, isMe, id){
+        var scrollAppend = function(li, images){
+            if($messages[0].scrollTop+$messages.height() == $messages[0].scrollHeight){
+                $messages.append(li);
+                displayImages(li, images);
+                $messages.scrollTop($messages[0].scrollHeight);
+            }
+            else{
+                $messages.append(li);
+                displayImages(li, images);
+            }
+        };
+
+         var sendMessage = function(message, username, isMe, id, images){
+             console.log(images);
              var me = isMe ? ' me' : '';
              var p = $("<p>", {
                  'class': 'message-header'
@@ -160,14 +238,10 @@ block content
              });
              li.append(p);
              li.append(p2);
-             if($messages[0].scrollTop+$messages.height() == $messages[0].scrollHeight){
-                 $messages.append(li);
-                 $messages.scrollTop($messages[0].scrollHeight);
-             }
-             else $messages.append(li);
+             scrollAppend(li, images);
         };
 
-        var sendPrivateMessage = function(message, username, isMe){
+        var sendPrivateMessage = function(message, username, isMe, images){
             var me = isMe ? ' me' : '';
             var p = $("<p>", {
                 'class': 'message-header'
@@ -182,9 +256,20 @@ block content
 
             li.append(p);
             li.append(p2);
-            if($messages[0].scrollTop+$messages.height() == $messages[0].scrollHeight){
-                $messages.append(li);
-                $messages.scrollTop($messages[0].scrollHeight);
-            }
-            else $messages.append(li);
+            scrollAppend(li, images);
+        };
+
+        var sendMOTD = function(message){
+            var p1 = $("<p>", {
+                'class': 'message'
+            }).text(message);
+            var li = $("<li>", {
+                //'id': 'msg_' + id,
+                'class': 'message-wrapper public',
+                css:{
+                    'text-align': 'center'
+                }
+            });
+            li.append(p1);
+            scrollAppend(li, im1ages=[]);
         };

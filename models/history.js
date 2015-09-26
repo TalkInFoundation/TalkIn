@@ -16,6 +16,9 @@ var schema = new Schema({
     conference: {
         type: String,
         required: true
+    },
+    images: {
+        type: [String]
     }
 
 });
