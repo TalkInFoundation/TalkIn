@@ -159,7 +159,6 @@ module.exports = function(server){
                     time: history.created,
                     username: username
                 };
-
                 confio.to(slug).emit('chat:send_message', _msg);
 
             });

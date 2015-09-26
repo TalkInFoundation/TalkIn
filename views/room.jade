@@ -115,10 +115,10 @@ block content
         function sendCheck(data, whisper){
             var isMe = data.username == userinfo.username;
             if(whisper){
-                sendPrivateMessage(data.message, data.username, isMe, data.images);
+                sendPrivateMessage(data.message, data.username, isMe, data.images, data.time);
                 return false;
             }
-            sendMessage(data.message, data.username, isMe, data._id, data.images);
+            sendMessage(data.message, data.username, isMe, data._id, data.images, data.time);
         }
 
         function temporarySwap(array) {
@@ -223,7 +223,7 @@ block content
             }
         };
 
-         var sendMessage = function(message, username, isMe, id, images){
+         var sendMessage = function(message, username, isMe, id, images, time){
              console.log(images);
              var me = isMe ? ' me' : '';
              var p = $("<p>", {
@@ -232,6 +232,9 @@ block content
              var p2 = $("<p>", {
                  'class': 'message'
              }).text(message);
+             var p3 = $("<p>", {
+                'class': 'message-date'
+             }).text(time);
 
 
              var li = $("<li>", {
@@ -240,10 +243,11 @@ block content
              });
              li.append(p);
              li.append(p2);
+             li.append(p3);
              scrollAppend(li, images);
         };
 
-        var sendPrivateMessage = function(message, username, isMe, images){
+        var sendPrivateMessage = function(message, username, isMe, images, time){
             var me = isMe ? ' me' : '';
             var p = $("<p>", {
                 'class': 'message-header'
@@ -251,6 +255,9 @@ block content
             var p2 = $("<p>", {
                 'class': 'message'
             }).text(message);
+             var p3 = $("<p>", {
+                'class': 'message-date'
+             }).text(time);
 
             var li = $("<li>", {
                 'class': 'message-wrapper private' + me
@@ -258,6 +265,7 @@ block content
 
             li.append(p);
             li.append(p2);
+            li.append(p3);
             scrollAppend(li, images);
         };
 
