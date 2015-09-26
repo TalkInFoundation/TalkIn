@@ -115,10 +115,10 @@ block content
         function sendCheck(data, whisper){
             var isMe = data.username == userinfo.username;
             if(whisper){
-                sendPrivateMessage(data.message, data.username, isMe, data.images, data.time);
+                sendPrivateMessage(data.message, data.username, isMe, data.images, data.time || data.created);
                 return false;
             }
-            sendMessage(data.message, data.username, isMe, data._id, data.images, data.time);
+            sendMessage(data.message, data.username, isMe, data._id, data.images, data.time || data.created);
         }
 
         function temporarySwap(array) {
