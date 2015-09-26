@@ -225,8 +225,20 @@ block content
                 displayImages(li, images);
             }
         };
-
-         var sendMessage = function(data, isMe){
+        var normalizeDate = function(date){
+            var monthNames = [
+                "January", "February", "March",
+                "April", "May", "June", "July",
+                "August", "September", "October",
+                "November", "December"
+            ];
+            var date = new Date(date);
+            var day = date.getDate();
+            var monthIndex = date.getMonth();
+            var year = date.getFullYear();
+            return day + ' ' + monthNames[monthIndex] + ' ' + year;
+        };
+        var sendMessage = function(data, isMe){
              var me = isMe ? ' me' : '';
              var p = $("<p>", {
                  'class': 'message-header'
@@ -236,7 +248,7 @@ block content
              }).text(data.message);
              var p3 = $("<p>", {
                 'class': 'message-date'
-             }).text(data.time || data.created);
+             }).text(normalizeDate(data.time || data.created));
 
 
              var li = $("<li>", {
@@ -259,7 +271,7 @@ block content
             }).text(data.message);
              var p3 = $("<p>", {
                 'class': 'message-date'
-             }).text(data.time || data.created);
+             }).text(normalizeDate(data.time || data.created));
 
             var li = $("<li>", {
                 'class': 'message-wrapper private' + me
