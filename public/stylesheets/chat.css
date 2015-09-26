@@ -75,9 +75,10 @@
     content: ':'
 }
 .message {
-    display: inline-block;
+
     overflow: hidden;
     white-space: pre-wrap;
+    word-wrap: break-word;
 }
 .message-date {
     float: right;
