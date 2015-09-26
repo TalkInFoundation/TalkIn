@@ -38,7 +38,7 @@ block content
         $chat_text.keyup(function(){
             var message = $chat_text.val();
             if(message.length>5){
-                var imageRegex = /(https?:\/\/.*\.(?:png|jpg))/;
+                var imageRegex = /(https?:\/\/[^\s\n\t]*\.(?:png|jpg))/;
                 var imageFound = message.match(imageRegex);
                 if(imageFound){
                     if(imagesArray.indexOf(imageFound[0])!==-1) return false;
