@@ -116,10 +116,12 @@ block content
         function sendCheck(data, whisper){
             var isMe = data.username == userinfo.username;
             if(whisper){
-                sendPrivateMessage(data.message, data.username, isMe, data.images, data.time || data.created);
+               // sendPrivateMessage(data.message, data.username, isMe, data.images, data.time || data.created);
+                sendPrivateMessage(data, isMe);
                 return false;
             }
-            sendMessage(data.message, data.username, isMe, data._id, data.images, data.time || data.created);
+            //sendMessage(data.message, data.username, isMe, data._id, data.images, data.time || data.created);
+            sendMessage(data, isMe);
         }
 
         function temporarySwap(array) {
@@ -224,41 +226,40 @@ block content
             }
         };
 
-         var sendMessage = function(message, username, isMe, id, images, time){
-             console.log(images);
+         var sendMessage = function(data, isMe){
              var me = isMe ? ' me' : '';
              var p = $("<p>", {
                  'class': 'message-header'
-                }).text(username);
+                }).text(data.username);
              var p2 = $("<p>", {
                  'class': 'message'
-             }).text(message);
+             }).text(data.message);
              var p3 = $("<p>", {
                 'class': 'message-date'
-             }).text(time);
+             }).text(data.time || data.created);
 
 
              var li = $("<li>", {
-                 'id': 'msg_'+id,
+                 'id': 'msg_'+data._id,
                  'class': 'message-wrapper public'  + me
              });
              li.append(p);
              li.append(p2);
-             scrollAppend(li, images);
+             scrollAppend(li, data.images);
              li.append(p3);
         };
 
-        var sendPrivateMessage = function(message, username, isMe, images, time){
+        var sendPrivateMessage = function(data, isMe){
             var me = isMe ? ' me' : '';
             var p = $("<p>", {
                 'class': 'message-header'
-            }).text(username);
+            }).text(data.username);
             var p2 = $("<p>", {
                 'class': 'message'
-            }).text(message);
+            }).text(data.message);
              var p3 = $("<p>", {
                 'class': 'message-date'
-             }).text(time);
+             }).text(data.time || data.created);
 
             var li = $("<li>", {
                 'class': 'message-wrapper private' + me
