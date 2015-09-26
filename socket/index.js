@@ -104,8 +104,6 @@ module.exports = function(server){
             });
             var users = findClientsSocketByRoomId(slug);
 
-            console.log(users);
-
             function findClientsSocketByRoomId(roomId) {
                 var res = {}
                     , room = confio.adapter.rooms[roomId];

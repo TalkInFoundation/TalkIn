@@ -92,6 +92,7 @@ block content
                    }
                    socket.emit('chat:send_message', {message: message, images:imagesArray||[]});
                    imagesArray = [];
+                   $imagePlaceholder.empty();
                    $chat_text.val("");
                    //sendMessage(message, 'left', false);
                    return false;
@@ -243,8 +244,8 @@ block content
              });
              li.append(p);
              li.append(p2);
-             li.append(p3);
              scrollAppend(li, images);
+             li.append(p3);
         };
 
         var sendPrivateMessage = function(message, username, isMe, images, time){
