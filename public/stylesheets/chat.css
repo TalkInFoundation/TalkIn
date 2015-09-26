@@ -66,6 +66,15 @@
 
 .message-header{
     font-weight: bold;
+    display: inline-block;
+    float: left;
+}
+.message-header::after {
+    content: ':'
+}
+.message {
+    display: inline-block;
+    overflow: hidden;
 }
 
 
