@@ -37,6 +37,8 @@ block content
         $chat_text.keypress(function(e){
            if(e.which == 13 && !e.shiftKey){
                var message = $chat_text.val();
+               if(message.replace(/[\s\t\n]/g, '') == '')
+                   return;
                if(message.length > 0) {
                    if(message.length > 3){ //private message
                        var whisper_regex = /^[\\\/]w\s([A-Za-z0-9_]+)\s(.+)/i;
