@@ -238,13 +238,13 @@ block content
             ];
 
             var date = new Date(date);
-            var seconds = date.getSeconds();
-            var minutes = date.getMinutes();
             var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var result = (hours < 10 ? "0" + hours : hours) + "-" + (minutes < 10 ? "0" + minutes : minutes);
             var day = date.getDate();
             var monthIndex = date.getMonth();
             var year = date.getFullYear();
-            return hours + ':' + minutes + ':' + seconds + ' ' + day + ' ' + monthNames[monthIndex] + ' ' + year;
+            return result + ' ' + day + ' ' + monthNames[monthIndex] + ' ' + year;
         };
         var sendMessage = function(data, isMe){
              var me = isMe ? ' me' : '';
