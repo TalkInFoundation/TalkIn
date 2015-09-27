@@ -13,13 +13,14 @@ block content
         .chat-body
             .chat-sidebar#connected_users
             .chat-main
-                ul.messages#msgs
+                ul.messages.scrollbar-macosx#msgs
                 .chat-input
                     textarea.chat-text#chat_text(placeholder="Type your message here")
                 .image-placeholder
         .input(type="hidden" id= slug class="slug")
             .clear
     script(type="text/javascript").
+        $('.scrollbar-macosx').scrollbar();
         var $slug = $('.slug').attr('id');
         console.log($slug);
         var socket = io.connect('/conferences', {query: 'slug='+$slug});

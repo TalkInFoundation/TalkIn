@@ -41,7 +41,6 @@ app.use(session({
 
 
 app.use(express.static(path.join(__dirname, 'public')));
-
 var checkAuth = require('./middleware/checkAuth');
 app.use(require('./middleware/usermiddleware'));
 
