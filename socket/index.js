@@ -180,7 +180,8 @@ module.exports = function(server){
                 var _msg = {
                     message: data.msg,
                     username: username,
-                    images: data.images
+                    images: data.images,
+                    time: data.time
                 };
                 confio.connected[_users[data.to]].emit('chat:send_message:private', _msg);
             });

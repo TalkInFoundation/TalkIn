@@ -83,7 +83,7 @@ block content
                            var msg = match[2];
                            if(to === userinfo.username) return false;// we don't need to send private messages to ourselves
                            if($.inArray(to, _users) !== -1){
-                               socket.emit('chat:send_message:private', {to: to, msg: msg, images:imagesArray||[]});
+                               socket.emit('chat:send_message:private', {to: to, msg: msg, time:Date.now(), images:imagesArray||[]});
                                var data = {
                                    message: msg,
                                    username: userinfo.username,
