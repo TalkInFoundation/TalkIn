@@ -38,6 +38,7 @@
     width: 400px;
     max-height: 400px;
     overflow: auto;
+    overflow-x:hidden;
 }
 .messages li p{
     word-wrap: break-word;
@@ -49,6 +50,7 @@
 .message-wrapper{
     padding: 25px;
     border-bottom: 1px solid #cccccc;
+    box-sizing: border-box;
     border-left: 2px solid #9AADC0;
     text-align: left;
 }
@@ -75,7 +77,6 @@
     content: ':'
 }
 .message {
-
     overflow: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;

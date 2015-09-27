@@ -55,11 +55,15 @@ block content
                         width: "70",
                         height:"70",
                         class:"chat-image"
+                    }).on('error', function(){
+                        return false;
+                    }).on('load', function(){
+                        div.append(p);
+                        div.append(img);
+                        $imagePlaceholder.append(div);
+                        imagesArray.push(imageFound[0]);
                     });
-                    div.append(p);
-                    div.append(img);
-                    $imagePlaceholder.append(div);
-                    imagesArray.push(imageFound[0]);
+
                 }
             }
         });
@@ -215,7 +219,7 @@ block content
         };
 
         var scrollAppend = function(li, images){
-            if($messages[0].scrollTop+$messages.height() == $messages[0].scrollHeight){
+            if($messages[0].scrollTop+$messages.height()+1 >= $messages[0].scrollHeight){
                 $messages.append(li);
                 displayImages(li, images);
                 $messages.scrollTop($messages[0].scrollHeight);
