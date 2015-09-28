@@ -106,10 +106,6 @@ module.exports = function(server){
 
             Conference.findOne({slug: slug}, function(err, data){
                 if(err) return new HttpError(404);
-                if(!checkConnectAllow(data, typeOfUser)){
-                    socket.disconnect();
-                    socket.emit("chat:disconnect");
-                }
                 conference = data;
             });
 
@@ -152,7 +148,6 @@ module.exports = function(server){
                 Conference.findOne({slug: slug}, function(err, data){
                     if(err) return new HttpError(404);
                     conference = data;
-                    console.log("good");
                 });
             });
 
