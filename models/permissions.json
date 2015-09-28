@@ -1,0 +1,26 @@
+{
+  "user_groups": {
+    "open": {
+      "admin": {
+        "allowedActions": "all"
+      },
+      "member": {
+        "allowedActions": "read, connect"
+      },
+      "user":{
+        "allowedActions": "read, write, connect"
+      }
+    },
+    "closed": {
+      "admin": {
+        "allowedActions": "all"
+      },
+      "member": {
+        "allowedActions": "read, write, connect"
+      },
+      "user":{
+        "allowedActions": "restrict"
+      }
+    }
+  }
+}

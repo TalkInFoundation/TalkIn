@@ -9,7 +9,9 @@ var checkAuth = require('../../middleware/checkAuth');
 router.post('/', checkAuth, function(req, res, nezt){
     var roomName = req.body.roomName;
     var roomSlug = req.body.roomSlug;
-    var conference = new Conference({name: roomName, slug: roomSlug});
+    var typeOfRoom = req.body.permissions;
+    var permissions = Conference.getAllPermissions(typeOfRoom);
+    var conference = new Conference({name: roomName, slug: roomSlug, permissions: permissions});
     conference.addUser(req.user.username);
     conference.owner = req.user.username;
     conference.save(function(err){

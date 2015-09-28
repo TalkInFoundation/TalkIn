@@ -8,6 +8,7 @@ var config = require('./config');
 var mongoose = require('./libs/mongoose').db;
 
 var AuthError = require('./errors/AuthError').AuthError;
+var adminPanel = require('./routes/admin');
 var logout = require('./routes/logout');
 var main = require('./routes/main');
 var room = require('./routes/room');
@@ -46,7 +47,7 @@ app.use(require('./middleware/usermiddleware'));
 
 
 //Routes
-
+app.use(adminPanel);
 app.use(profile);
 app.use(room);
 app.use(registration);

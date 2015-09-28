@@ -7,10 +7,28 @@ var router = express.Router();
 
 router.get('/conference/:slug', checkAuth, function(req, res, next) {
     var slug = req.params.slug;
-    Conference.find({slug: slug}, function (err, data) {
+    var username = req.user.username;
+    var perm;
+    Conference.findOne({slug: slug}, function (err, data) {
         if (err) return next(err);
-        if (!data.length > 0) return next(new HttpError(404, "No conference found!"));
-        res.render('room', {title: 'TalkIn', slug: slug});
+        if (!data) return next(new HttpError(404, "No conference found!"));
+        if(data.isOwner(username)){
+            perm = "admin";
+        }
+        else if(!data.inConference(username)){
+            if(!data.hasPermission('connect', perm || "user")){
+                return next(new HttpError(403, "Permission error!"));
+            }
+            data.addUser(username);
+            perm = 'member';
+            data.save(function(err){
+                if(err) throw new HttpError(404);
+            });
+        }
+        else{
+            perm = "member";
+        }
+        res.render('room', {title: 'TalkIn', slug: slug, typeOfUser: perm});
     });
 });
 

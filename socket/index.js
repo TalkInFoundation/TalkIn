@@ -86,21 +86,16 @@ module.exports = function(server){
     });
 
 
-
+    var conference;
     var users = {};
     confio.on('connection', function(socket){
         if(socket.request.user){
             var slug = socket.request._query['slug'];
+            var typeOfUser = socket.request._query['typeOfUser'];
             var username = socket.request.user.get('username');
             Conference.findOne({slug: slug}, function(err, data){
                 if(err) return new HttpError(404);
-                if(!data) return new HttpError("Conference error!");
-                if(!data.inConference(username)){
-                    data.addUser(username);
-                    data.save(function(err){
-                       if(err) throw new HttpError(404);
-                    });
-                }
+                conference = data;
             });
             var users = findClientsSocketByRoomId(slug);
 
@@ -140,6 +135,10 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message', function(data){
+                if(!conference.hasPermission('write', typeOfUser)){
+                    socket.emit("client:info", "You have no permissions to chat!");
+                    return false;
+                }
                 var history = new History({
                     username: username,
                     message: data.message,
@@ -176,6 +175,10 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message:private', function(data){
+                if(!conference.hasPermission('write', typeOfUser)){
+                    socket.emit("client:info", "You have no permissions to chat!");
+                    return false;
+                }
                 var _users = findClientsSocketByRoomId(slug);
                 var _msg = {
                     message: data.msg,
