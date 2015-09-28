@@ -88,6 +88,9 @@ module.exports = function(server){
 
     var conference;
     var users = {};
+    var checkConnectAllow = function(data, typeOfUser){
+        data.hasPermission('connect', typeOfUser)
+    };
     confio.on('connection', function(socket){
         if(socket.request.user){
             var slug = socket.request._query['slug'];
@@ -96,12 +99,17 @@ module.exports = function(server){
             var users = findClientsSocketByRoomId(slug);
 
 
+
             if(_.contains(_.keys(users), username)){
                 return false; //needs notification to user
             }
 
             Conference.findOne({slug: slug}, function(err, data){
                 if(err) return new HttpError(404);
+                if(!checkConnectAllow(data, typeOfUser)){
+                    socket.disconnect();
+                    socket.emit("chat:disconnect");
+                }
                 conference = data;
             });
 
@@ -140,6 +148,13 @@ module.exports = function(server){
                 }
             });
 
+            socket.on("db:reload", function(){
+                Conference.findOne({slug: slug}, function(err, data){
+                    if(err) return new HttpError(404);
+                    conference = data;
+                    console.log("good");
+                });
+            });
 
 
             socket.on('chat:send_message', function(data){

@@ -113,7 +113,7 @@ var init = function(option) {
                     showInfo(msg.error, 'error');
                 }
                 if(msg.success){
-                    showInfo(msg.success, 'success')
+                    showInfo(msg.success, 'success');
                 }
             });
     });
@@ -137,7 +137,8 @@ var init = function(option) {
                     showInfo(msg.error, 'error');
                 }
                 if(msg.success){
-                    showInfo(msg.success, 'success')
+                    showInfo(msg.success, 'success');
+                    socket.emit('db:reload');
                 }
             });
     });
@@ -195,6 +196,10 @@ var init = function(option) {
         _.each(history, function (record) {
             sendCheck(record, false)
         });
+    });
+
+    socket.on("chat:disconnect", function(){
+        location.href = "/";
     });
 
     socket.on('clients:get:online', function (users) {

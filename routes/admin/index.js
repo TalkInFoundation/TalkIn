@@ -34,6 +34,7 @@ router.post('/inviteuser', function(req, res, next){
 
 router.post('/sendpermissions', function(req, res, next){
     var slug = req.body.roomSlug;
+    var io = req.app.get('io');
     var username = req.user.username;
     var userPermissions = req.body.userPermissions;
     var memberPermissions = req.body.memberPermissions;

@@ -103,6 +103,6 @@ http.listen(3000, function(){
     console.log('Server started. Port: 3000');
 });
 
-
+app.set('io', io);
 
 module.exports = app;
