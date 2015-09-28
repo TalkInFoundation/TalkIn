@@ -28,7 +28,7 @@ router.get('/conference/:slug', checkAuth, function(req, res, next) {
         else{
             perm = "member";
         }
-        res.render('room', {title: 'TalkIn', slug: slug, typeOfUser: perm});
+        res.render('room', {title: 'TalkIn', slug: slug, typeOfUser: perm, permissionList: data.permissions});
     });
 });
 

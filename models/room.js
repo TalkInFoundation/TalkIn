@@ -32,13 +32,16 @@ schema.methods.isOwner = function(username){
     return username === this.owner;
 };
 
+schema.methods.editPermission = function(permission, typeOfUser){
+    this.permissions[typeOfUser] = permission;
+};
+
 schema.methods.hasPermission = function(action, typeOfUser){
     var permission = this.permissions[typeOfUser];
-    console.log(permission);
     if(permission==="all"){
         return true;
     }
-    var arr = permission.split(/(\s+)/);
+    var arr = permission.split(", ");
     return _.contains(arr, action);
 };
 

@@ -112,7 +112,50 @@ var init = function(option) {
                 if(msg.error){
                     showInfo(msg.error, 'error');
                 }
+                if(msg.success){
+                    showInfo(msg.success, 'success')
+                }
             });
+    });
+
+
+    $('#send_permissions').on('click', function() {
+        var $memberPermissions = $('#memberPermissions').val();
+        var $userPermissions = $('#userPermissions').val();
+        _.each([$memberPermissions, $userPermissions], function(perm){
+            if(!perm.length > 0){
+                perm = "restricted";
+            }
+        });
+        $.ajax({
+            method: "POST",
+            url: "/sendpermissions",
+            data: {roomSlug:$slug, userPermissions: $userPermissions, memberPermissions: $memberPermissions}
+        })
+            .done(function (msg) {
+                if(msg.error){
+                    showInfo(msg.error, 'error');
+                }
+                if(msg.success){
+                    showInfo(msg.success, 'success')
+                }
+            });
+    });
+
+
+
+    $('#openPanel').on("click", function(){
+        var self = $(this);
+        var $panel = $('.admin-panel-wrapper');
+        if(!$panel.hasClass('hidden')){
+            $panel.addClass('hidden');
+            self.val("Admin Panel");
+        }
+        else{
+            $panel.removeClass('hidden');
+            $(this).val("Hide");
+        }
+
     });
 
     socket.on('chat:send_message', function (data) {
@@ -192,8 +235,8 @@ var init = function(option) {
         }, 3000);
     }
 
-    socket.on('client:info', function (msg) {
-        showInfo(msg);
+    socket.on('client:info', function (msg, cls) {
+        showInfo(msg, cls);
     });
 
     socket.on('chat:edit_message', function (msg, id) {

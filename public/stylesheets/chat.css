@@ -154,3 +154,17 @@
     max-height: 200px;
     display: block;
 }
+
+.admin-panel-wrapper.hidden{
+    display:none;
+}
+.functions-wrapper > div{
+    display: inline-block;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #DDDDDD;
+}
+.functions-wrapper input{
+    display: block;
+    margin: 10px;
+}

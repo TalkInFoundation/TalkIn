@@ -143,6 +143,7 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message', function(data){
+                console.log(typeOfUser);
                 if(!conference.hasPermission('write', typeOfUser)){
                     socket.emit("client:info", "You have no permissions to chat!");
                     return false;
@@ -184,7 +185,7 @@ module.exports = function(server){
 
             socket.on('chat:send_message:private', function(data){
                 if(!conference.hasPermission('write', typeOfUser)){
-                    socket.emit("client:info", "You have no permissions to chat!");
+                    socket.emit("client:info", "You have no permissions to chat!", "error");
                     return false;
                 }
                 var _users = findClientsSocketByRoomId(slug);

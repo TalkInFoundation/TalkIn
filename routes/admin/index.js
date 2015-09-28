@@ -26,9 +26,29 @@ router.post('/inviteuser', function(req, res, next){
             conference.save(function(err){
                 if(err) return next(err);
             });
-            res.json("ok");
+            res.json({success: "User " + userToInvite + " has been invited!"});
         });
     });
 });
 
+router.post('/sendpermissions', function(req, res, next){
+    var slug = req.body.roomSlug;
+    var username = req.user.username;
+    var userPermissions = req.body.userPermissions;
+    var memberPermissions = req.body.memberPermissions;
+    Conference.findOne({slug: slug}, function(err, conference) {
+        if (err) return next(new Error("Database error!"));
+        if (!conference) return next(new Error(404, "No conference found!"));
+        if (!conference.isOwner(username)) return next(new Error(403, "No permissions!"));
+        conference.permissions.member = memberPermissions;
+        conference.permissions.user = userPermissions;
+        conference.save(function(err){
+            if(err){
+                return next(err);
+            }
+        });
+
+        res.json({success: "Permissions saved!"})
+    });
+});
 module.exports = router;
