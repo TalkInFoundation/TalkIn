@@ -93,11 +93,18 @@ module.exports = function(server){
             var slug = socket.request._query['slug'];
             var typeOfUser = socket.request._query['typeOfUser'];
             var username = socket.request.user.get('username');
+            var users = findClientsSocketByRoomId(slug);
+
+
+            if(_.contains(_.keys(users), username)){
+                return false; //needs notification to user
+            }
+
             Conference.findOne({slug: slug}, function(err, data){
                 if(err) return new HttpError(404);
                 conference = data;
             });
-            var users = findClientsSocketByRoomId(slug);
+
 
             function findClientsSocketByRoomId(roomId) {
                 var res = {}
@@ -109,6 +116,7 @@ module.exports = function(server){
                 }
                 return res;
             }
+
 
             socket.join(slug);
 
