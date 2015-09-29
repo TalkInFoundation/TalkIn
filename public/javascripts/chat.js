@@ -50,7 +50,7 @@ var init = function(option) {
     });
     $chat_text.keypress(function (e) {
         var message = $chat_text.val();
-        if (message.replace(/[\s\t\n]/g, '') == '' && !imagesArray.length > 0)
+        if (message.replace(/[\s\t\n]/g, '') == '' && !(imagesArray.length > 0))
             return;
         if (e.which == 13 && !e.shiftKey) {
             if (message.length > 0 || imagesArray.length > 0) {
@@ -289,14 +289,10 @@ var init = function(option) {
     };
 
     var scrollAppend = function (li, images) {
+        $messages.append(li);
+        displayImages(li, images);
         if ($messages[0].scrollTop + $messages.height() + 1 >= $messages[0].scrollHeight) {
-            $messages.append(li);
-            displayImages(li, images);
             $messages.scrollTop($messages[0].scrollHeight);
-        }
-        else {
-            $messages.append(li);
-            displayImages(li, images);
         }
     };
     var normalizeDate = function (date) {
@@ -342,6 +338,7 @@ var init = function(option) {
         li.append(p2);
         scrollAppend(li, data.images);
         li.append(p3);
+
 
         if(data.username == lastMessageData.username
             && new Date(data.time) - new Date(lastMessageData.time) <= joinMsgLimit){
