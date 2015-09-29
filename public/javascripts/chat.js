@@ -76,6 +76,7 @@ var init = function(option) {
                             };
                             sendPrivateMessage(data, true);
                             imagesArray = [];
+                            $imagePlaceholder.empty();
                             $chat_text.val("");
                             return false;
                         }
@@ -290,7 +291,7 @@ var init = function(option) {
 
     var displayLinks = function (li) {
         var t = li.html();
-        t = t.replace(/((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/gi, '<a href="$1">$1</a>');
+        t = t.replace(/((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/gi, '<a href="$1" target="_blank">$1</a>');
         li.html(t);
     };
 
@@ -309,21 +310,21 @@ var init = function(option) {
         }
     };
     var normalizeDate = function (date) {
-        var monthNames = [
-            "January", "February", "March",
-            "April", "May", "June", "July",
-            "August", "September", "October",
-            "November", "December"
-        ];
+        //var monthNames = [
+        //    "January", "February", "March",
+        //    "April", "May", "June", "July",
+        //    "August", "September", "October",
+        //    "November", "December"
+        //];
 
         var date = new Date(date);
         var hours = date.getHours();
         var minutes = date.getMinutes();
         var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ', ';
-        var day = date.getDate();
-        var monthIndex = date.getMonth();
-        var year = date.getFullYear();
-        return result + ' ' + day + ' ' + monthNames[monthIndex] + ' ' + year;
+        //var day = date.getDate();
+        //var monthIndex = date.getMonth();
+        //var year = date.getFullYear();
+        return result;
     };
     var lastMessageData = {},
         lastMessageElement,
