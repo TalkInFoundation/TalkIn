@@ -289,10 +289,15 @@ var init = function(option) {
     };
 
     var scrollAppend = function (li, images) {
-        $messages.append(li);
-        displayImages(li, images);
+
         if ($messages[0].scrollTop + $messages.height() + 1 >= $messages[0].scrollHeight) {
+            $messages.append(li);
+            displayImages(li, images);
             $messages.scrollTop($messages[0].scrollHeight);
+        }
+        else{
+            $messages.append(li);
+            displayImages(li, images);
         }
     };
     var normalizeDate = function (date) {
