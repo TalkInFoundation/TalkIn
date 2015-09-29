@@ -50,7 +50,7 @@ var init = function(option) {
     });
     $chat_text.keypress(function (e) {
         var message = $chat_text.val();
-        if (message.replace(/[\s\t\n]/g, '') == '' && !(imagesArray.length > 0))
+        if (message.replace(/[\s\t\n]/g, '') == '' && !imagesArray.length > 0)
             return;
         if (e.which == 13 && !e.shiftKey) {
             if (message.length > 0 || imagesArray.length > 0) {
@@ -276,7 +276,7 @@ var init = function(option) {
         li.append($('<img />', {
             src: src,
             class: 'render-chat-image'
-        }));
+        }).overlay());
         $messages.append(li);
     };
 
