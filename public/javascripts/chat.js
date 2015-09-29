@@ -288,15 +288,23 @@ var init = function(option) {
         }
     };
 
+    var displayLinks = function (li) {
+        var t = li.html();
+        t = t.replace(/(https?:\/\/[^\s\t\n\"]+)/gi, '<a href="$1">$1</a>');
+        li.html(t);
+    };
+
     var scrollAppend = function (li, images) {
 
         if ($messages[0].scrollTop + $messages.height() + 1 >= $messages[0].scrollHeight) {
             $messages.append(li);
+            displayLinks(li);
             displayImages(li, images);
             $messages.scrollTop($messages[0].scrollHeight);
         }
         else{
             $messages.append(li);
+            displayLinks(li);
             displayImages(li, images);
         }
     };
