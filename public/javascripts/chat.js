@@ -290,7 +290,7 @@ var init = function(option) {
 
     var displayLinks = function (li) {
         var t = li.html();
-        t = t.replace(/(https?:\/\/[^\s\t\n\"]+)/gi, '<a href="$1">$1</a>');
+        t = t.replace(/((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/gi, '<a href="$1">$1</a>');
         li.html(t);
     };
 
@@ -349,7 +349,6 @@ var init = function(option) {
         });
         li.append(p);
         li.append(p2);
-        scrollAppend(li, data.images);
         li.append(p3);
 
 
@@ -362,6 +361,7 @@ var init = function(option) {
             lastMessageElement.css('border-bottom', 0);
         }
 
+        scrollAppend(li, data.images);
         lastMessageData = data;
         lastMessageElement = li;
     };
