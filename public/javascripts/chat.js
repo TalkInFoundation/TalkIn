@@ -82,7 +82,8 @@ var init = function(option) {
                                 message: msg,
                                 username: userinfo.username,
                                 time: Date.now(),
-                                images: imagesArray
+                                images: imagesArray,
+                                type: "private"
                             };
                             new Message(data).sendMessage(userinfo.username);
                             imagesArray = [];
