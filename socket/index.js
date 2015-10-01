@@ -90,11 +90,13 @@ module.exports = function(server){
         ONLINE: "Online"
     };
 
-    function getOnlineInConference(conference, usersOnline){
+    function getOnlineInConference(conference, usersOnline, username){
         var usersData = {};
         conference.users.forEach(function(user){
             usersData[user] = user in usersOnline ? USER_STATUS.ONLINE : USER_STATUS.OFFLINE;
         });
+        usersData[username] = username in usersOnline ? USER_STATUS.ONLINE : USER_STATUS.OFFLINE;
+        console.log(usersData);
         return usersData;
     }
 
@@ -107,7 +109,7 @@ module.exports = function(server){
             var typeOfUser = socket.request._query['typeOfUser'];
             var username = socket.request.user.get('username');
             var users = findClientsSocketByRoomId(slug);//online users
-
+            var socketid = socket.id;
 
 
             if(_.contains(_.keys(users), username)){
@@ -124,7 +126,7 @@ module.exports = function(server){
                 };
                 socket.emit('clients:get:information', clientInformation);
                 users = findClientsSocketByRoomId(slug); //get latest information about connected users
-                confio.to(slug).emit('clients:get:online', getOnlineInConference(conference, users));
+                confio.to(slug).emit('clients:get:online', getOnlineInConference(conference, users, username));
             });
 
 

@@ -215,7 +215,14 @@ var init = function(option) {
 
     socket.on('clients:get:online', function (users) {
         for(var u in users){
-            $('.user-field:contains('+ u +')').addClass(users[u]);
+            var $userField = $('.user-field:contains('+ u +')');
+            if($userField.hasClass(USER_STATUS.OFFLINE)){
+                $userField.removeClass(USER_STATUS.OFFLINE);
+            }
+            if($userField.hasClass(USER_STATUS.ONLINE)){
+                $userField.remove(USER_STATUS.ONLINE);
+            }
+            $userField.addClass(users[u]);
             if(users[u] === USER_STATUS.ONLINE){
                 usersOnline.push(u);
             }
@@ -266,7 +273,7 @@ var init = function(option) {
     socket.on('clients:leave', function (username) {
         var userField = $(".user-field:contains('" + username + "')");
 
-        userField.removeClass(USER_STATUS.ONLINE);
+        userField.removeClass(USER_STATUS.ONLINE).addClass(USER_STATUS.OFFLINE);
 
     });
 
