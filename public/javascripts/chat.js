@@ -343,68 +343,6 @@ var init = function(option) {
         //var year = date.getFullYear();
         return result;
     };
-    var lastMessageData = {},
-        lastMessageElement,
-        joinMsgLimit = 5 * 60 * 1000;
-        // messages with difference > 5 minutes dont join
-    var sendMessage = function (data, isMe) {
-        data.time = data.time || data.created;
-
-        var me = isMe ? ' me' : '';
-        var p = $("<p>", {
-            'class': 'message-header'
-        }).text(data.username);
-        var p2 = $("<p>", {
-            'class': 'message'
-        }).text(data.message);
-        var p3 = $("<p>", {
-            'class': 'message-date'
-        }).text(normalizeDate(data.time));
-
-        var li = $("<li>", {
-            'id': 'msg_' + data._id,
-            'class': 'message-wrapper public' + me
-        });
-        li.append(p);
-        li.append(p2);
-        li.append(p3);
-
-
-        if(data.username == lastMessageData.username
-            && new Date(data.time) - new Date(lastMessageData.time) <= joinMsgLimit){
-            // messages joining
-            p.css('visibility', 'hidden');
-            lastMessageElement.css('padding-bottom', 15);
-            li.css('padding-top', 15);
-            lastMessageElement.css('border-bottom', 0);
-        }
-
-        scrollAppend(li, data.images);
-        lastMessageData = data;
-        lastMessageElement = li;
-    };
-
-    var sendPrivateMessage = function (data, isMe) {
-        var me = isMe ? ' me' : '';
-        var p = $("<p>", {
-            'class': 'message-header'
-        }).text(data.username);
-        var p2 = $("<p>", {
-            'class': 'message'
-        }).text(data.message);
-        var p3 = $("<p>", {
-            'class': 'message-date'
-        }).text(normalizeDate(data.time || data.created));
-
-        var li = $("<li>", {
-            'class': 'message-wrapper private' + me
-        });
-
-        li.append(p);
-        li.append(p2);
-        li.append(p3);
-        scrollAppend(li, data.images);
-    };
 
     var sendMOTD = function (message) {
         var p1 = $("<p>", {
