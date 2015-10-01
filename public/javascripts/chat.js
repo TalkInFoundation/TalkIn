@@ -6,9 +6,18 @@ var init = function(option) {
     var $chat_text = $('#chat_text');
     var $messages = $('#msgs');
     var $imagePlaceholder = $('.image-placeholder');
-    var _users = [];
+    var usersOnline = [];
     var userinfo = {};
     var imagesArray = [];
+
+    var USER_STATUS = {
+        OFFLINE: "Offline",
+        ONLINE: "Online"
+    };
+
+
+
+
 
     /* GET profile online */
     /*  END  */
@@ -61,7 +70,8 @@ var init = function(option) {
                         var to = match[1];
                         var msg = match[2];
                         if (to === userinfo.username) return false;// we don't need to send private messages to ourselves
-                        if ($.inArray(to, _users) !== -1) {
+                        console.log(to, " ", usersOnline);
+                        if ($.inArray(to, usersOnline) !== -1) {
                             socket.emit('chat:send_message:private', {
                                 to: to,
                                 msg: msg,
@@ -74,7 +84,7 @@ var init = function(option) {
                                 time: Date.now(),
                                 images: imagesArray
                             };
-                            sendPrivateMessage(data, true);
+                            new Message(data).sendMessage(userinfo.username);
                             imagesArray = [];
                             $imagePlaceholder.empty();
                             $chat_text.val("");
@@ -161,24 +171,24 @@ var init = function(option) {
     });
 
     socket.on('chat:send_message', function (data) {
-        sendCheck(data, false);
+        new Message(data).sendMessage(userinfo.username);
     });
 
     socket.on('chat:send_message:private', function (data) {
-        sendCheck(data, true);
+        new Message(data).sendMessage(userinfo.username);
     });
 
 
-    function sendCheck(data, whisper) {
-        var isMe = data.username == userinfo.username;
-        if (whisper) {
-            // sendPrivateMessage(data.message, data.username, isMe, data.images, data.time || data.created);
-            sendPrivateMessage(data, isMe);
-            return false;
-        }
-        //sendMessage(data.message, data.username, isMe, data._id, data.images, data.time || data.created);
-        sendMessage(data, isMe);
-    }
+    //function sendCheck(data, whisper) {
+    //    var isMe = data.username == userinfo.username;
+    //    if (whisper) {
+    //        // sendPrivateMessage(data.message, data.username, isMe, data.images, data.time || data.created);
+    //        sendPrivateMessage(data, isMe);
+    //        return false;
+    //    }
+    //    //sendMessage(data.message, data.username, isMe, data._id, data.images, data.time || data.created);
+    //    sendMessage(data, isMe);
+    //}
 
     function temporarySwap(array) {
         var left = null;
@@ -195,7 +205,7 @@ var init = function(option) {
     socket.on('clients:get:history', function (data) {
         var history = temporarySwap(data);
         _.each(history, function (record) {
-            sendCheck(record, false)
+            new Message(record).sendMessage(userinfo.username);
         });
     });
 
@@ -204,24 +214,28 @@ var init = function(option) {
     });
 
     socket.on('clients:get:online', function (users) {
-        console.log(users);
-        users.forEach(function (user) {
-                $('#connected_users').append("<p class='user-field'>" + user + "</p>");
-                _users.push(user);
+        for(var u in users){
+            $('.user-field:contains('+ u +')').addClass(users[u]);
+            if(users[u] === USER_STATUS.ONLINE){
+                usersOnline.push(u);
             }
-        );
+        }
     });
 
     socket.on('clients:get:information', function (data) {
         userinfo = _.clone(data);
-        console.log(userinfo);
+        data.conferenceUsers.forEach(function(user){
+            if(userinfo.username != user) {
+                $('#connected_users').append("<p class='user-field'>" + user + "</p>");
+            }
+        });
     });
 
-    socket.on('clients:join', function (username) {
-        console.log(username);
-        $('#connected_users').append("<p class='user-field'>" + username + "</p>");
-        sendMOTD(username + " connected");
-    });
+    //socket.on('clients:join', function (username) {
+    //    console.log(username);
+    //    $('#connected_users').append("<p class='user-field'>" + username + "</p>");
+    //    sendMOTD(username + " connected");
+    //});
 
     socket.on('not logged in', function () {
         location.href = "/login";
@@ -250,7 +264,10 @@ var init = function(option) {
     });
 
     socket.on('clients:leave', function (username) {
-        $(".user-field:contains('" + username + "')").remove();
+        var userField = $(".user-field:contains('" + username + "')");
+
+        userField.removeClass(USER_STATUS.ONLINE);
+
     });
 
 
@@ -401,6 +418,6 @@ var init = function(option) {
             }
         });
         li.append(p1);
-        scrollAppend(li, im1ages = []);
+        scrollAppend(li, images = []);
     };
 }

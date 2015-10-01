@@ -168,3 +168,11 @@
     display: block;
     margin: 10px;
 }
+
+.user-field.Online{
+    color: green;
+}
+
+.user-field.Offline{
+    color: red;
+}

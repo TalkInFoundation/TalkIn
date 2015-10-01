@@ -85,18 +85,28 @@ module.exports = function(server){
         });
     });
 
+    var USER_STATUS = {
+        OFFLINE: "Offline",
+        ONLINE: "Online"
+    };
+
+    function getOnlineInConference(conference, usersOnline){
+        var usersData = {};
+        conference.users.forEach(function(user){
+            usersData[user] = user in usersOnline ? USER_STATUS.ONLINE : USER_STATUS.OFFLINE;
+        });
+        return usersData;
+    }
+
 
     var conference;
-    var users = {};
-    var checkConnectAllow = function(data, typeOfUser){
-        data.hasPermission('connect', typeOfUser)
-    };
     confio.on('connection', function(socket){
         if(socket.request.user){
+
             var slug = socket.request._query['slug'];
             var typeOfUser = socket.request._query['typeOfUser'];
             var username = socket.request.user.get('username');
-            var users = findClientsSocketByRoomId(slug);
+            var users = findClientsSocketByRoomId(slug);//online users
 
 
 
@@ -107,7 +117,19 @@ module.exports = function(server){
             Conference.findOne({slug: slug}, function(err, data){
                 if(err) return new HttpError(404);
                 conference = data;
+                var clientInformation = {
+                    username: username,
+                    user: users,
+                    conferenceUsers: conference.users //get all users from conference
+                };
+                socket.emit('clients:get:information', clientInformation);
+                users = findClientsSocketByRoomId(slug); //get latest information about connected users
+                confio.to(slug).emit('clients:get:online', getOnlineInConference(conference, users));
             });
+
+
+
+
 
 
             function findClientsSocketByRoomId(roomId) {
@@ -120,20 +142,15 @@ module.exports = function(server){
                 }
                 return res;
             }
-
-
             socket.join(slug);
 
-            socket.broadcast.to(slug).emit('clients:join', username);
-            var userinfo = {
-                username: username,
-                user: users
-                //...
-            };
-            socket.emit('clients:get:information', userinfo);
 
-            //var users_online = _.filter(_.keys(profile), function(user){return username != user});
-            socket.emit('clients:get:online', _.keys(users));
+
+
+
+            socket.broadcast.to(slug).emit('clients:join', username);
+
+
 
 
 
@@ -153,7 +170,6 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message', function(data){
-                console.log(typeOfUser);
                 if(!conference.hasPermission('write', typeOfUser)){
                     socket.emit("client:info", "You have no permissions to chat!");
                     return false;
@@ -173,7 +189,8 @@ module.exports = function(server){
                     images: data.images,
                     _id: history._id,
                     time: history.created,
-                    username: username
+                    username: username,
+                    type: "public"
                 };
                 confio.to(slug).emit('chat:send_message', _msg);
 
@@ -203,7 +220,8 @@ module.exports = function(server){
                     message: data.msg,
                     username: username,
                     images: data.images,
-                    time: data.time
+                    time: data.time,
+                    type: "private"
                 };
                 confio.connected[_users[data.to]].emit('chat:send_message:private', _msg);
             });
