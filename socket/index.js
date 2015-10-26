@@ -100,6 +100,17 @@ module.exports = function(server){
         return usersData;
     }
 
+    function setStructureOfMessage(username, message, images, time, type, id){
+        return {
+            message: message,
+            images: images,
+            _id: id,
+            time: time,
+            username: username,
+            type: type
+        }
+    }
+
 
     var conference;
     confio.on('connection', function(socket){
@@ -188,14 +199,7 @@ module.exports = function(server){
                 history.save(function(err){
                     if(err){  return new HttpError("404")};
                 });
-                var _msg = {
-                    message: data.message,
-                    images: data.images,
-                    _id: history._id,
-                    time: history.created,
-                    username: username,
-                    type: "public"
-                };
+                var _msg = setStructureOfMessage(username, data.message, data.images, history.created, "public", history._id);
                 confio.to(slug).emit('chat:send_message', _msg);
 
             });
@@ -220,13 +224,7 @@ module.exports = function(server){
                     return false;
                 }
                 var _users = findClientsSocketByRoomId(slug);
-                var _msg = {
-                    message: data.msg,
-                    username: username,
-                    images: data.images,
-                    time: data.time,
-                    type: "private"
-                };
+                var _msg = setStructureOfMessage(username, data.message, data.images, data.time, "private");
                 confio.connected[_users[data.to]].emit('chat:send_message:private', _msg);
             });
 

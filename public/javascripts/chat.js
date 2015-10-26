@@ -291,12 +291,10 @@ var init = function(option) {
     //    sendMOTD(username + " connected");
     //});
 
+
     socket.on('not logged in', function () {
         location.href = "/login";
     });
-    function parseId(id) {
-        return id.substring(4);
-    }
 
     function showInfo(msg, cls){
         var $infoBlock = $('.info-wrapper');
@@ -344,72 +342,5 @@ var init = function(option) {
         parent.remove();
     });
 
-    var renderImage = function (src, li) {
-        li.append($('<img />', {
-            src: src,
-            class: 'render-chat-image'
-        }).overlay());
-        $messages.append(li);
-    };
 
-    var displayImages = function (li, images) {
-        if (images.length > 0) {
-            _.each(images, function (src) {
-                renderImage(src, li);
-            });
-        }
-    };
-
-    var displayLinks = function (li) {
-        var t = li.html();
-        t = t.replace(/((http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/gi, '<a href="$1" target="_blank">$1</a>');
-        li.html(t);
-    };
-
-    var scrollAppend = function (li, images) {
-
-        if ($messages[0].scrollTop + $messages.height() + 1 >= $messages[0].scrollHeight) {
-            $messages.append(li);
-            displayLinks(li);
-            displayImages(li, images);
-            $messages.scrollTop($messages[0].scrollHeight);
-        }
-        else{
-            $messages.append(li);
-            displayLinks(li);
-            displayImages(li, images);
-        }
-    };
-    var normalizeDate = function (date) {
-        //var monthNames = [
-        //    "January", "February", "March",
-        //    "April", "May", "June", "July",
-        //    "August", "September", "October",
-        //    "November", "December"
-        //];
-
-        var date = new Date(date);
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ', ';
-        //var day = date.getDate();
-        //var monthIndex = date.getMonth();
-        //var year = date.getFullYear();
-        return result;
-    };
-
-    var sendMOTD = function (message) {
-        var p1 = $("<p>", {
-            'class': 'message'
-        }).text(message);
-        var li = $("<li>", {
-            //'id': 'msg_' + id,
-            'class': 'message-wrapper public',
-            css: {
-                'text-align': 'center'
-            }
-        });
-        li.append(p1);
-        scrollAppend(li, images = []);
-    };
-}
+};
