@@ -57,10 +57,30 @@ var init = function(option) {
             }
         }
     });
+    var typing = false;
+    var timeout = undefined;
+
+    function typingTimeOut(){
+        typing = false;
+        socket.emit('clients:typing', {typing: false, username: userinfo.username});
+    }
+
     $chat_text.keypress(function (e) {
         var message = $chat_text.val();
         if (message.replace(/[\s\t\n]/g, '') == '' && !imagesArray.length > 0)
             return;
+
+        if(e.which !== 13){ // typing event
+            if(typing == false){
+                typing = true;
+                socket.emit('clients:typing', {typing: true, username: userinfo.username});
+            }
+            else{
+                clearInterval(timeout);
+                timeout = setInterval(typingTimeOut, 3000);
+            }
+        }
+
         if (e.which == 13 && !e.shiftKey) {
             if (message.length > 0 || imagesArray.length > 0) {
                 if (message.length > 3) {
@@ -173,10 +193,36 @@ var init = function(option) {
 
     socket.on('chat:send_message', function (data) {
         new Message(data).sendMessage(userinfo.username);
+        $(".typing#"+data.username+"").remove();
+        clearTimeout(timeout);
+        timeout = setTimeout(typingTimeOut, 0);
     });
 
     socket.on('chat:send_message:private', function (data) {
         new Message(data).sendMessage(userinfo.username);
+        $(".typing#"+data.username+"").remove();
+        clearTimeout(timeout);
+        timeout = setTimeout(typingTimeOut, 0);
+    });
+
+    socket.on('clients:typing', function(data){
+        if(data.typing){
+            var $typingBlock = $('.typing-display');
+            if($typingBlock.has('span').length){
+                var $text = $('.typing-display span').text();
+                console.log($text);
+                var position = /(is|are)/.exec($text).index;
+                var sub = ", " + data.username;
+                var outputText = $text.substr(0, position) + sub + " are typing";
+                $('.typing-display span').text(outputText);
+                return;
+            }
+            $typingBlock.append('<span class="typing" id="' + data.username + '">' + data.username + ' is typing</span>');
+            timeout = setTimeout(typingTimeOut, 3000);
+        }
+        else{
+            $('.typing#'+data.username).remove();
+        }
     });
 
 

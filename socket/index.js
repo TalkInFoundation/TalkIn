@@ -154,7 +154,9 @@ module.exports = function(server){
 
 
 
-
+            socket.on('clients:typing', function(data){
+                socket.broadcast.to(slug).emit('clients:typing', data);
+            });
 
             History.find({conference: slug}).sort({created:-1}).limit(15).exec(function(err, data){
                 if(err) return next(err);
