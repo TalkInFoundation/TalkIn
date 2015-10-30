@@ -6,7 +6,10 @@ block content
         a#logout Выйти
     else
         | Вы не вошли.
-     p= typeOfUser
+    p= typeOfUser
+    if typeOfUser === "user"
+        if control.hasPermission('join', typeOfUser)
+             input(type="button" id="join_to_conference", value="Join!")
     .info-wrapper.hidden
     .chat-wrapper
         .chat-head
@@ -30,10 +33,10 @@ block content
                     input(type="text" placeholder="Enter username for invite" id="inviteName")
                     input(type="button" id="send_invite" value="Invite!")
                 .permissions-control
-                    input(type="text" id="memberPermissions" value= permissionList.member)
+                    input(type="text" id="memberPermissions" value= control.permissions.member)
                     label(for="memberPermissions") Permissions for joined users
                     br
-                    input(type="text" value= permissionList.user id="userPermissions")
+                    input(type="text" value= control.permissions.user id="userPermissions")
                     label(for="userPermissions") Permissions for newcome users
                     input(type="button" value="Save Permissions" id="send_permissions")
     script(type="text/javascript" src="/javascripts/Message.js")

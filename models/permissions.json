@@ -5,10 +5,10 @@
         "allowedActions": "all"
       },
       "member": {
-        "allowedActions": "read, connect"
+        "allowedActions": "read, connect, write"
       },
       "user":{
-        "allowedActions": "read, write, connect"
+        "allowedActions": "read, connect, join"
       }
     },
     "closed": {

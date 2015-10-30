@@ -329,6 +329,12 @@ var init = function(option) {
         var new_msg = "/w " + username + " " + prev_msg;
         $chat_text.val(new_msg);
     });
+
+    $(document).on('click', '#join_to_conference', function(){
+        socket.emit('clients:joinToRoom');
+        $('#join_to_conference').remove();
+    });
+
     $(document).on('click', '.chat-image-close', function () {
         var parent = $(this).parent();
         var url = $('img', parent).attr('src');

@@ -183,6 +183,16 @@ module.exports = function(server){
                 });
             });
 
+            socket.on('clients:joinToRoom', function(){
+                conference.addUser(username);
+                conference.save(function(err){
+                    if(err){
+                        socket.emit('client:info', 'db error', 'error');
+                    }
+                });
+                typeOfUser = "member";
+                socket.emit('client:info', 'Successfully!', 'success');
+            });
 
             socket.on('chat:send_message', function(data){
                 if(!conference.hasPermission('write', typeOfUser)){

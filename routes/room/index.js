@@ -19,16 +19,17 @@ router.get('/conference/:slug', checkAuth, function(req, res, next) {
             if(!data.hasPermission('connect', perm || "user")){
                 return next(new HttpError(403, "Permission error!"));
             }
-            data.addUser(username);
-            perm = 'member';
-            data.save(function(err){
-                if(err) throw new HttpError(404);
-            });
+           // data.addUser(username);//add user in the room
+           // perm = 'member';
+           // data.save(function(err){
+           //     if(err) throw new HttpError(404);
+           // });
+            perm = "user";
         }
         else{
             perm = "member";
         }
-        res.render('room', {title: 'TalkIn', slug: slug, typeOfUser: perm, permissionList: data.permissions});
+        res.render('room', {title: 'TalkIn', slug: slug, typeOfUser: perm, control: data});
     });
 });
 
