@@ -1,0 +1,76 @@
+.panel {
+	border-bottom: solid 2px #c8d3de;
+}
+
+.panel_title {
+	background: #2A394F;
+	color: #fff;
+	padding: 10px;
+	font-weight: bold;
+	cursor: default;
+}
+
+.panel_title_buttons {
+	float: right;
+}
+
+.panel_title_buttons .icon {
+	cursor: pointer;
+	padding: 2px;
+	border-radius: 1px;
+	color: #6382A9;
+}
+
+.panel_title_buttons .icon:hover {
+	color: white;
+	background: #ff4400;
+}
+
+.panel_content {
+	background: white;
+	color: #364760;
+	padding: 10px;
+}
+
+@font-face {
+	font-family: 'icons_tin'; /* made with fontello */
+	src: url('/fonts/icons_tin.eot?13114429');
+	src: url('/fonts/icons_tin.eot?13114429#iefix') format('embedded-opentype'),
+		 url('/fonts/icons_tin.woff?13114429') format('woff'),
+		 url('/fonts/icons_tin.ttf?13114429') format('truetype'),
+		 url('/fonts/icons_tin.svg?13114429#icons_tin') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.icon {
+	font-family: 'icons_tin';
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	margin-right: .2em;
+	text-align: center;
+	/* opacity: .8; */
+
+	/* For safety - reset parent styles, that can break glyph codes*/
+	font-variant: normal;
+	text-transform: none;
+
+	/* fix buttons height, for twitter bootstrap */
+	line-height: 1em;
+
+	/* Animation center compensation - margins should be symmetric */
+	/* remove if not needed */
+	margin-left: .2em;
+
+	/* You can be more comfortable with increased icons size */
+	/* font-size: 120%; */
+
+	/* Font smoothing. That was taken from TWBS */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

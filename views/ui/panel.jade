@@ -1,0 +1,8 @@
+mixin panel(title, width, x, y)
+	.panel(style='width: #{width}px; position: absolute; top: #{y}px; left: #{x}px')
+		.panel_title
+			.panel_title_buttons
+				i.icon.hide_button &#xe80f;
+			=title
+		.panel_content
+			block

@@ -1,4 +1,5 @@
 extends layout
+include ui/panel
 
 block content
     if user
@@ -11,10 +12,7 @@ block content
         if control.hasPermission('join', typeOfUser)
              input(type="button" id="join_to_conference", value="Join!")
     .info-wrapper.hidden
-    .chat-wrapper
-        .chat-head
-            span
-                h2 Chat
+    +panel('Chat', 400, 0, 50)
         .chat-body
             .chat-sidebar#connected_users
             .chat-main
@@ -44,7 +42,3 @@ block content
     script(type="text/javascript").
         var typeOfUser = "#{typeOfUser}";
         init(typeOfUser);
-
-
-
-
