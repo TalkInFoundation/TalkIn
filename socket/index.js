@@ -7,6 +7,7 @@ var HttpError = require('../errors/HttpError').HttpError;
 var User = require('../models/users').User;
 var History = require('../models/history').History;
 var Conference = require('../models/room').Conference;
+var Contacts = require('../models/contacts').Contacts;
 var _ = require('underscore');
 function LoadSession(sid, callback){
     sessionStore.load(sid, function(err, session){
@@ -96,7 +97,6 @@ module.exports = function(server){
             usersData[user] = user in usersOnline ? USER_STATUS.ONLINE : USER_STATUS.OFFLINE;
         });
         usersData[username] = username in usersOnline ? USER_STATUS.ONLINE : USER_STATUS.OFFLINE;
-        console.log(usersData);
         return usersData;
     }
 
@@ -127,18 +127,44 @@ module.exports = function(server){
                 return false; //needs notification to user
             }
 
-            Conference.findOne({slug: slug}, function(err, data){
-                if(err) return new HttpError(404);
-                conference = data;
-                var clientInformation = {
-                    username: username,
-                    user: users,
-                    conferenceUsers: conference.users //get all users from conference
-                };
-                socket.emit('clients:get:information', clientInformation);
-                users = findClientsSocketByRoomId(slug); //get latest information about connected users
-                confio.to(slug).emit('clients:get:online', getOnlineInConference(conference, users, username));
+            async.parallel([
+                function(callback){
+                    Conference.findOne({slug: slug}, function(err, data){
+                        if(err) return callback(err, data);
+                        conference = data;
+                        var clientInformation = {
+                            username: username,
+                            user: users,
+                            conferenceUsers: conference.users //get all users from conference
+                        };
+                        callback(null, clientInformation);
+                    });
+                },
+                function(callback){
+                    Contacts.findOne({username:username}, function(err, data){
+                        if(err) return callback(err, data);
+                        if(!data) return callback(null, null);
+                        callback(null, data.conferences);
+                    });
+                }
+            ], function(err, results){
+                if(err){console.log(err);}
+
+                socket.emit('clients:get:information', results[0], results[1]);
             });
+
+            //Conference.findOne({slug: slug}, function(err, data){
+            //    if(err) return new HttpError(404);
+            //    conference = data;
+            //    var clientInformation = {
+            //        username: username,
+            //        user: users,
+            //        conferenceUsers: conference.users //get all users from conference
+            //    };
+            //    socket.emit('clients:get:information', clientInformation);
+            //    users = findClientsSocketByRoomId(slug); //get latest information about connected users
+            //    confio.to(slug).emit('clients:get:online', getOnlineInConference(conference, users, username));
+            //});
 
 
 
@@ -191,7 +217,17 @@ module.exports = function(server){
                     }
                 });
                 typeOfUser = "member";
-                socket.emit('client:info', 'Successfully!', 'success');
+                Contacts.addConference(username, slug, function(){
+                    socket.emit('clients:joinToRoom', slug);
+                });
+                //Contacts.findOrCreate({username: username}, function(err, contact){
+                //    if(err) socket.emit('client:info', 'DB ERROR!', 'error');
+                //    contact.conferences.push(slug);
+                //    contact.save(function(err){
+                //        if(err) socket.emit('client:info', 'DB ERROR!', 'error');
+                //        socket.emit('clients:joinToRoom', slug);
+                //    });
+                //});
             });
 
             socket.on('chat:send_message', function(data){

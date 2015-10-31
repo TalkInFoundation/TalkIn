@@ -23,6 +23,9 @@ block content
                 .image-placeholder
         .input(type="hidden" id= slug class="slug")
     .clear
+    +panel('Contacts list', 400, 0, 50)
+        ul.contacts-list
+
     if typeOfUser === "admin"
         input(type="button" value="Admin Panel" id="openPanel")
         .admin-panel-wrapper.hidden

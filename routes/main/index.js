@@ -1,4 +1,5 @@
 var Conference = require('../../models/room').Conference;
+var Contacts = require('../../models/contacts').Contacts;
 var express = require('express');
 var router = express.Router();
 var checkAuth = require('../../middleware/checkAuth');
@@ -17,7 +18,9 @@ router.post('/', checkAuth, function(req, res, nezt){
     conference.save(function(err){
         if(err) return next(err);
     });
-    res.json({status: "ok"});
+    Contacts.addConference(req.params.username, roomSlug, function(){
+        res.json({status: "ok"});
+    });
 });
 
 router.get('/', checkAuth, function(req, res, next){

@@ -5,6 +5,7 @@ var init = function(option) {
     var socket = io.connect('/conferences', {query: 'slug=' + $slug + "&" + "typeOfUser=" + typeOfUser});
     var $chat_text = $('#chat_text');
     var $messages = $('#msgs');
+    var $contactsHolder = $('.contacts-list');
     var $imagePlaceholder = $('.image-placeholder');
     var usersOnline = [];
     var userinfo = {};
@@ -225,6 +226,12 @@ var init = function(option) {
         }
     });
 
+    socket.on('clients:joinToRoom', function(slug){
+        var li = $('<li></li>', {
+            'class': 'contact-row'
+        }).text(slug);
+        $contactsHolder.append(li);
+    });
 
     //function sendCheck(data, whisper) {
     //    var isMe = data.username == userinfo.username;
@@ -276,13 +283,22 @@ var init = function(option) {
         }
     });
 
-    socket.on('clients:get:information', function (data) {
+    socket.on('clients:get:information', function (data, contacts) {
+        console.log(data, contacts);
         userinfo = _.clone(data);
         data.conferenceUsers.forEach(function(user){
             if(userinfo.username != user) {
                 $('#connected_users').append("<p class='user-field'>" + user + "</p>");
             }
         });
+        if(contacts) {
+            contacts.forEach(function (contact) {
+                var li = $('<li></li>', {
+                    'class': 'contact-row'
+                }).text(contact);
+                $contactsHolder.append(li);
+            });
+        }
     });
 
     //socket.on('clients:join', function (username) {

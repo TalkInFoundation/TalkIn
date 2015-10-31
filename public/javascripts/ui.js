@@ -1,6 +1,6 @@
 $(function(){
 
-	var body = $(document.body);
+	var body = $(document);
 	$('.panel').each(function(){
 
 		var panel = $(this);
