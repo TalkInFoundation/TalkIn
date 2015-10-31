@@ -1,6 +1,7 @@
 $(function(){
 
 	var body = $(document.body);
+	var doc = $(document);
 	$('.panel').each(function(){
 
 		var panel = $(this);
@@ -19,7 +20,7 @@ $(function(){
 			});
 		});
 
-		body.mouseup(function(){
+		doc.mouseup(function(){
 			x = null;
 			y = null;
 			body.css({
