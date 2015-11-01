@@ -91,11 +91,10 @@ var init = function(option) {
                         var to = match[1];
                         var msg = match[2];
                         if (to === userinfo.username) return false;// we don't need to send private messages to ourselves
-                        console.log(to, " ", usersOnline);
                         if ($.inArray(to, usersOnline) !== -1) {
                             socket.emit('chat:send_message:private', {
                                 to: to,
-                                msg: msg,
+                                message: msg,
                                 time: Date.now(),
                                 images: imagesArray || []
                             });

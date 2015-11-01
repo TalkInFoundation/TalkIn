@@ -8,6 +8,8 @@ var User = require('../models/users').User;
 var History = require('../models/history').History;
 var Conference = require('../models/room').Conference;
 var Contacts = require('../models/contacts').Contacts;
+
+var logger = require('../logging/logger')(module);
 var _ = require('underscore');
 function LoadSession(sid, callback){
     sessionStore.load(sid, function(err, session){
@@ -115,7 +117,7 @@ module.exports = function(server){
     var conference;
     confio.on('connection', function(socket){
         if(socket.request.user){
-
+            logger.log('info', "New connection. IP: %s, username: ", socket.request.connection.remoteAddress, socket.request.user.get('username'))
             var slug = socket.request._query['slug'];
             var typeOfUser = socket.request._query['typeOfUser'];
             var username = socket.request.user.get('username');
@@ -148,9 +150,11 @@ module.exports = function(server){
                     });
                 }
             ], function(err, results){
-                if(err){console.log(err);}
+                if(err){logger.log('error', 'Failed to get or create information about user and contacts. %j', results);}
 
                 socket.emit('clients:get:information', results[0], results[1]);
+                users = findClientsSocketByRoomId(slug); //get latest information about connected users
+                confio.to(slug).emit('clients:get:online', getOnlineInConference(conference, users));
             });
 
             //Conference.findOne({slug: slug}, function(err, data){
@@ -196,7 +200,9 @@ module.exports = function(server){
             });
 
             History.find({conference: slug}).sort({created:-1}).limit(15).exec(function(err, data){
-                if(err) return next(err);
+                if(err){
+                    logger.log('error', 'Failed to get conference\'s history. Error: %j', err);
+                }
                 if(data.length > 0){
                     socket.emit('clients:get:history', data);
                 }
@@ -204,7 +210,9 @@ module.exports = function(server){
 
             socket.on("db:reload", function(){
                 Conference.findOne({slug: slug}, function(err, data){
-                    if(err) return new HttpError(404);
+                    if(err){
+                        logger.log('error', 'Failed to reload conference\'s data. Error: %j', err);
+                    }
                     conference = data;
                 });
             });
@@ -213,6 +221,7 @@ module.exports = function(server){
                 conference.addUser(username);
                 conference.save(function(err){
                     if(err){
+                        logger.log('error', 'Failed to save conference . Error: %j', err);
                         socket.emit('client:info', 'db error', 'error');
                     }
                 });
@@ -243,7 +252,9 @@ module.exports = function(server){
                 });
 
                 history.save(function(err){
-                    if(err){  return new HttpError("404")};
+                    if(err){
+                        logger.log('error', 'Failed to save history in chat:send_message. Error: %j', err);
+                    }
                 });
                 var _msg = setStructureOfMessage(username, data.message, data.images, history.created, "public", history._id);
                 confio.to(slug).emit('chat:send_message', _msg);
@@ -252,7 +263,9 @@ module.exports = function(server){
 
             socket.on('chat:edit_message', function(id, msg){
                 History.findOneAndUpdate({_id: id}, {message: msg}, function(err, data){
-                    if(err) next(err);
+                    if(err){
+                        logger.log('error', 'Failed to update message. Error: %j', err);
+                    }
                     confio.to(slug).emit('chat:edit_message', msg, id);
                 });
             });
@@ -264,7 +277,7 @@ module.exports = function(server){
 
 
 
-            socket.on('chat:send_message:private', function(data){
+            socket.on('chat:send_message:private', function(data){//(username, message, images, time, type, id)
                 if(!conference.hasPermission('write', typeOfUser)){
                     socket.emit("client:info", "You have no permissions to chat!", "error");
                     return false;
