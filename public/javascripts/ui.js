@@ -74,7 +74,7 @@ var Widget = (function($, undefined){
 
 	Widget.prototype = {
 
-		makeHTML: function(params){
+		makeHTML: function(){
 
 			this.$panel = $('<div></div>', {
 				class: 'panel',
