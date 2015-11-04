@@ -11,11 +11,9 @@ Widget.widgets['ConferenceAdmin'] = {
         $.ajax({
             method: "GET",
             url: "/renderwidget/conferenceAdmin",
-            data: {typeOfUser: params.typeOfUser},
+            data: {id: params.id},
             success: function(data){
                 self.$content.html(data);
-                self.socket.emit('clients:get:history', params.id);
-                self.socket.emit('clients:join', params.id);
             }
         });
     }

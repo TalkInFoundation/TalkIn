@@ -16,6 +16,9 @@ Widget.widgets['Chat'] = {
                 self.$content.html(data);
                 self.socket.emit('clients:get:history', params.id);
                 self.socket.emit('clients:join', params.id);
+                if(typeOfUser === "admin"){
+                    var adminWidget = new Widget('ConferenceAdmin', {id: params.id})
+                }
             }
         });
         //var $textarea = $("<textarea></textarea>", {

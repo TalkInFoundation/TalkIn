@@ -5,11 +5,11 @@ var router = express.Router();
 var Conference = require('../../models/room').Conference;
 var _ = require('underscore');
 router.post('/inviteuser', function(req, res, next){
-    var slug = req.body.roomSlug;
+    var id = req.body.id;
     var userToInvite= req.body.inviteUsername;
     var username = req.user.username;
     console.log("test");
-    Conference.findOne({slug: slug}, function(err, conference){
+    Conference.findOne({'_id': id}, function(err, conference){
         if(err) return next(new Error("Database error!"));
         if(!conference) return next(new Error(404, "No conference found!"));
         if(!conference.isOwner(username)) return next(new Error(403, "No permissions!"));

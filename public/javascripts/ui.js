@@ -67,7 +67,7 @@ var Widget = (function($, undefined){
 		Object.keys(Widget.widgets[name]).forEach(function(param){
 			this[param] = Widget.widgets[name][param];
 		}.bind(this));
-        this.socket = socket;
+        this.socket = socket || undefined;
 		this.makeHTML(params);
 		this.make(params);
 	}

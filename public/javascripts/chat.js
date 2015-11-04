@@ -151,12 +151,14 @@ var init = function(option) {
         });
     });
 
-    $('#send_invite').on('click', function() {
-        var userToInvite = $('#inviteName').val();
+    $(document).on('click', '#send_invite', function(){
+        var userToInvite = $(this).closest('.panel').find('#inviteName').val();
+        alert(userToInvite)
+        var id = $(this).closest('.panel').find('input[type="hidden"]').data('id');
         $.ajax({
             method: "POST",
             url: "/inviteuser",
-            data: {roomSlug:$slug, inviteUsername: userToInvite}
+            data: {id: id, inviteUsername: userToInvite}
         })
             .done(function (msg) {
                 if(msg.error){
@@ -167,6 +169,8 @@ var init = function(option) {
                 }
             });
     });
+
+
 
 
     $('#send_permissions').on('click', function() {
