@@ -18,6 +18,21 @@ var init = function(option) {
 
 
 
+    socket.on('init', function(data){
+
+        if(data.contacts) {
+            data.contacts.conferences.forEach(function (contact) {
+                var li = $('<li></li>', {
+                    'class': 'contact-row',
+                    'data-id': contact._id
+                }).text(contact.name);
+                $contactsHolder.append(li);
+            });
+        }
+        userinfo.username = data.username;
+    });
+
+
 
 
     /* GET profile online */
@@ -26,15 +41,16 @@ var init = function(option) {
     /* GET user informatio */
 
 
-    $chat_text.keyup(function () {
-        var message = $chat_text.val();
+    $(document).on('keyup', '#chat_text', function () {
+        var that = $(this);
+        var message = $(this).val();
         if (message.length > 5) {
             var imageRegex = /(https?:\/\/[^\s\n\t]*\.(?:png|jpg))/;
             var imageFound = message.match(imageRegex);
             if (imageFound) {
                 if (imagesArray.indexOf(imageFound[0]) !== -1) return false;
                 var newMessage = message.replace(imageRegex, '');
-                $chat_text.val(newMessage);
+                that.val(newMessage);
                 var div = $('<div />', {
                     class: 'chat-image-placeholder'
                 });
@@ -51,7 +67,7 @@ var init = function(option) {
                 }).on('load', function () {
                     div.append(p);
                     div.append(img);
-                    $imagePlaceholder.append(div);
+                    that.closest('.panel').find('.image-placeholder').append(div);
                     imagesArray.push(imageFound[0]);
                 });
 
@@ -66,8 +82,8 @@ var init = function(option) {
         socket.emit('clients:typing', {typing: false, username: userinfo.username});
     }
 
-    $chat_text.keypress(function (e) {
-        var message = $chat_text.val();
+    $(document).on('keypress', '#chat_text', function (e) {
+        var message = $(this).val();
         if (message.replace(/[\s\t\n]/g, '') == '' && !imagesArray.length > 0)
             return;
 
@@ -84,12 +100,14 @@ var init = function(option) {
 
         if (e.which == 13 && !e.shiftKey) {
             if (message.length > 0 || imagesArray.length > 0) {
+                var id = $(this).closest('.panel').find('input[type="hidden"]').data('id');
                 if (message.length > 3) {
                     var whisper_regex = /^[\\\/]w\s([A-Za-z0-9_]+)\s(.*)/i;
                     var match = message.match(whisper_regex);
                     if (match) {//if username and msg provided
                         var to = match[1];
                         var msg = match[2];
+                        console.log("fuck")
                         if (to === userinfo.username) return false;// we don't need to send private messages to ourselves
                         if ($.inArray(to, usersOnline) !== -1) {
                             socket.emit('chat:send_message:private', {
@@ -105,7 +123,7 @@ var init = function(option) {
                                 images: imagesArray,
                                 type: "private"
                             };
-                            new Message(data).sendMessage(userinfo.username);
+                            new Message(data).sendMessage({username: userinfo.username, id:id});
                             imagesArray = [];
                             $imagePlaceholder.empty();
                             $chat_text.val("");
@@ -118,7 +136,7 @@ var init = function(option) {
                     }
 
                 }
-                socket.emit('chat:send_message', {message: message, images: imagesArray || []});
+                socket.emit('chat:send_message', {message: message, id: id, images: imagesArray || []});
                 imagesArray = [];
                 $imagePlaceholder.empty();
                 $chat_text.val("");
@@ -191,8 +209,8 @@ var init = function(option) {
 
     });
 
-    socket.on('chat:send_message', function (data) {
-        new Message(data).sendMessage(userinfo.username);
+    socket.on('chat:send_message', function (data, id) {
+        new Message(data).sendMessage({username: userinfo.username, id:id});
         $(".typing#"+data.username+"").remove();
         clearTimeout(timeout);
         timeout = setTimeout(typingTimeOut, 0);
@@ -255,10 +273,10 @@ var init = function(option) {
         return array;
     }
 
-    socket.on('clients:get:history', function (data) {
+    socket.on('clients:get:history', function (data, id) {
         var history = temporarySwap(data);
         _.each(history, function (record) {
-            new Message(record).sendMessage(userinfo.username);
+            new Message(record).sendMessage({username: userinfo.username, id: id});
         });
     });
 
@@ -282,22 +300,18 @@ var init = function(option) {
         }
     });
 
-    socket.on('clients:get:information', function (data, contacts) {
-        console.log(data, contacts);
-        userinfo = _.clone(data);
+
+    function searchByDataId(id){
+        return $('input[data-id=' + id + ']').closest('.panel');
+    }
+
+    socket.on('clients:get:information', function (data, id) {
+        console.log(data);
         data.conferenceUsers.forEach(function(user){
             if(userinfo.username != user) {
-                $('#connected_users').append("<p class='user-field'>" + user + "</p>");
+                searchByDataId(id).find('#connected_users').append("<p class='user-field'>" + user + "</p>");
             }
         });
-        if(contacts) {
-            contacts.forEach(function (contact) {
-                var li = $('<li></li>', {
-                    'class': 'contact-row'
-                }).text(contact);
-                $contactsHolder.append(li);
-            });
-        }
     });
 
     //socket.on('clients:join', function (username) {
@@ -345,9 +359,15 @@ var init = function(option) {
         $chat_text.val(new_msg);
     });
 
+    $(document).on('click', '.contact-row', function(){
+        var ch = new Widget('Chat', {id: $(this).data('id'), typeOfUser: typeOfUser}, socket);
+    });
+
     $(document).on('click', '#join_to_conference', function(){
-        socket.emit('clients:joinToRoom');
-        $('#join_to_conference').remove();
+        var parent = $(this).closest('.panel');
+        var id = parent.find('input[type="hidden"]').data('id');
+        socket.emit('clients:joinToRoom', id);
+        parent.find('#join_to_conference').remove();
     });
 
     $(document).on('click', '.chat-image-close', function () {

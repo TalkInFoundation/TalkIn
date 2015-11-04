@@ -18,7 +18,7 @@ router.post('/', checkAuth, function(req, res, nezt){
     conference.save(function(err){
         if(err) return next(err);
     });
-    Contacts.addConference(req.params.username, roomSlug, function(){
+    Contacts.addConference(req.user.username, roomName, conference._id, function(){
         res.json({status: "ok"});
     });
 });

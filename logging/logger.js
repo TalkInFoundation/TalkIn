@@ -30,7 +30,7 @@ function Logger(module){
             new winston.transports.Console({
                 level: 'debug',
                 handleExceptions: true,
-                json: false,
+                json: true,
                 colorize: true
             })
         ],

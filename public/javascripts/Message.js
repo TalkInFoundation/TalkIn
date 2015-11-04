@@ -1,4 +1,4 @@
-var $messagesContainer = $('#msgs');
+var $messagesContainer;
 
 var Message = function(data){
     this.message = data.message || "";
@@ -21,9 +21,12 @@ var lastMessageData = {},
     lastMessageElement,
     joinMsgLimit = 5 * 60 * 1000;
 
-Message.prototype.sendMessage = function(senderUsername){
+Message.prototype.sendMessage = function(obj){
+
+    $messagesContainer = $('input[data-id=' + obj.id +']').closest('.panel').find('#msgs');
+    console.log($messagesContainer);
     var isMe = false;
-    if(senderUsername === this.username){
+    if(obj.username === this.username){
         isMe = true;
     }
     var typeOfPrivate = this.type === "private" ? " private" : " public";
@@ -43,6 +46,7 @@ Message.prototype.sendMessage = function(senderUsername){
         'id': 'msg_' + this.id,
         'class': 'message-wrapper' + typeOfPrivate + me
     });
+
     li.append(p);
     li.append(p2);
     li.append(p3);

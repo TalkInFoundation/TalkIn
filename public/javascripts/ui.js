@@ -59,7 +59,7 @@ var Widget = (function($, undefined){
 
 	var $document = $(document);
 
-	function Widget(name, params){
+	function Widget(name, params, socket){
 		if( !(name in Widget.widgets) ){
 			throw "Undefined widget: " + name;
 		}
@@ -67,7 +67,7 @@ var Widget = (function($, undefined){
 		Object.keys(Widget.widgets[name]).forEach(function(param){
 			this[param] = Widget.widgets[name][param];
 		}.bind(this));
-
+        this.socket = socket;
 		this.makeHTML(params);
 		this.make(params);
 	}
@@ -91,6 +91,7 @@ var Widget = (function($, undefined){
 			this.$buttons = $('<div class="panel_title_buttons"></div>').appendTo(this.$title);
 			this.$title.append(this.title)
 			this.$content = $('<div class="panel_content"></div>').appendTo(this.$panel);
+            this.$hidden = $('<input type="hidden" class="panel_hidden_info"/>').appendTo(this.$panel);
 
 			this.makeButtons();
 			this.makeInteraction();

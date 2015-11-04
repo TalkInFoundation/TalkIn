@@ -1,0 +1,13 @@
+if typeOfUser === "admin"
+    .admin-panel-wrapper
+        .functions-wrapper
+            .invite-user
+                input(type="text" placeholder="Enter username for invite" id="inviteName")
+                input(type="button" id="send_invite" value="Invite!")
+            .permissions-control
+                input(type="text" id="memberPermissions" value= control.permissions.member)
+                label(for="memberPermissions") Permissions for joined users
+                br
+                input(type="text" value= control.permissions.user id="userPermissions")
+                label(for="userPermissions") Permissions for newcome users
+                input(type="button" value="Save Permissions" id="send_permissions")

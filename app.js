@@ -16,6 +16,7 @@ var session = require('express-session');
 var registration = require('./routes/registration');
 var login = require('./routes/login');
 var profile = require('./routes/profile');
+var rend = require('./routes/render');
 var app = express();
 var http = require('http').Server(app);
 var io = require('./socket')(http);
@@ -47,6 +48,7 @@ app.use(require('./middleware/usermiddleware'));
 
 
 //Routes
+app.use(rend);
 app.use(adminPanel);
 app.use(profile);
 app.use(room);

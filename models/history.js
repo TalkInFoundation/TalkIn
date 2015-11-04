@@ -14,7 +14,7 @@ var schema = new Schema({
         default: Date.now
     },
     conference: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true
     },
     images: {

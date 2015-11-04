@@ -1,0 +1,12 @@
+.chat-body
+    if typeOfUser === "user"
+        if control.hasPermission('join', typeOfUser)
+            input(type="button" id="join_to_conference", value="Join!")
+    .chat-sidebar#connected_users
+    .chat-main
+        ul.messages.scrollbar-macosx#msgs
+        .chat-input
+            .typing-display
+            textarea.chat-text#chat_text(placeholder="Type your message here")
+        .image-placeholder
+        p= typeOfUser
