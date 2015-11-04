@@ -2,6 +2,7 @@ var express = require('express');
 var User = require('../../models/users').User;
 var async = require('async');
 var router = express.Router();
+var Contact = require('../../models/contacts').Contacts;
 var Conference = require('../../models/room').Conference;
 var _ = require('underscore');
 router.post('/inviteuser', function(req, res, next){
@@ -27,7 +28,10 @@ router.post('/inviteuser', function(req, res, next){
             conference.save(function(err){
                 if(err) return next(err);
             });
-            res.json({success: "User " + userToInvite + " has been invited!"});
+            Contact.addConference(userToInvite, conference.name, conference._id, function(){
+                res.json({success: "User " + userToInvite + " has been invited!"});
+            });
+
         });
     });
 });

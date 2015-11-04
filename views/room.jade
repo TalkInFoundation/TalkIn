@@ -13,35 +13,10 @@ block content
         if control.hasPermission('join', typeOfUser)
              input(type="button" id="join_to_conference", value="Join!")
     .info-wrapper.hidden
-    +panel('Chat', 400, 0, 100)
-        .chat-body
-            .chat-sidebar#connected_users
-            .chat-main
-                ul.messages.scrollbar-macosx#msgs
-                .chat-input
-                    .typing-display
-                    textarea.chat-text#chat_text(placeholder="Type your message here")
-                .image-placeholder
-        .input(type="hidden" id= slug class="slug")
-    .clear
+
     +panel('Contacts list', 250, 420, 100)
         ul.contacts-list
 
-    if typeOfUser === "admin"
-        //input(type="button" value="Admin Panel" id="openPanel")
-        +panel('Admin', 600, 690, 100)
-            .admin-panel-wrapper
-                .functions-wrapper
-                    .invite-user
-                        input(type="text" placeholder="Enter username for invite" id="inviteName")
-                        input(type="button" id="send_invite" value="Invite!")
-                    .permissions-control
-                        input(type="text" id="memberPermissions" value= control.permissions.member)
-                        label(for="memberPermissions") Permissions for joined users
-                        br
-                        input(type="text" value= control.permissions.user id="userPermissions")
-                        label(for="userPermissions") Permissions for newcome users
-                        input(type="button" value="Save Permissions" id="send_permissions")
     script(type="text/javascript" src="/javascripts/Message.js")
     script(type="text/javascript" src="/javascripts/chat.js").
     script(type="text/javascript").
