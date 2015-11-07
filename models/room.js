@@ -7,12 +7,16 @@ var _permissions = require('./permissions.json');
 
 var schema = new Schema({
     users: [{type: String}],
-    name: {type: String, required: true},
+    name: {type: String},
     history: {type: Schema.Types.ObjectId, ref: 'History'},
     owner: {type: String},
-    slug: {type: String, required: true},
+    slug: {type: String},
     permissions: {
         type: {}
+    },
+    isPrivate: {
+        type: Boolean,
+        default: false
     }
 });
 

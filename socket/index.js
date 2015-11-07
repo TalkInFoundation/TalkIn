@@ -132,7 +132,7 @@ module.exports = function(server){
 
             function init(){
                 socket.join(globalChannel);
-                Contacts.findOne({username:username}, function(err, contacts){
+                Contacts.findOne({username:username}).populate('conferences').exec(function(err, contacts){
                     if(err){
                         logger.log('error', 'DB error in contacts search');
                         return new Error(err);
@@ -145,8 +145,18 @@ module.exports = function(server){
                         username: username
                     };
                     socket.emit('init', data);
+                    var users = findClientsSocketByRoomId(globalChannel);
+                    data.contacts.conferences.forEach(function(conference){
+                        if(conference.isPrivate){
+                            try{
+                                confio.connected[users[conference.name]].emit('clients:connected', username);
+                            }
+                            catch(e){}
+                        }
+                    });
                 });
             }
+
 
             init();
 
@@ -277,8 +287,8 @@ module.exports = function(server){
                             return new HttpError(500);
                         }
                         typeOfUser = "member";
-                        Contacts.addConference(username, data.name, data._id, function(){
-                            socket.emit('clients:joinToRoom', slug);
+                        Contacts.addConference(username, data._id, function(){
+                            socket.emit('clients:joinToRoom', id);
                         })
                     })
                 });
@@ -332,13 +342,14 @@ module.exports = function(server){
 
 
             socket.on('chat:send_message:private', function(data){//(username, message, images, time, type, id)
-                if(!conference.hasPermission('write', typeOfUser)){
-                    socket.emit("client:info", "You have no permissions to chat!", "error");
-                    return false;
-                }
-                var _users = findClientsSocketByRoomId(slug);
+                //if(!conference.hasPermission('write', typeOfUser)){
+                //    socket.emit("client:info", "You have no permissions to chat!", "error");
+                //    return false;
+                //}
+                var _users = findClientsSocketByRoomId(data.id);
+                console.log(_users);
                 var _msg = setStructureOfMessage(username, data.message, data.images, data.time, "private");
-                confio.connected[_users[data.to]].emit('chat:send_message:private', _msg);
+                confio.connected[_users[data.to]].emit('chat:send_message:private', _msg, data.id);
             });
 
             socket.on('disconnect', function(){

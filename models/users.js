@@ -9,6 +9,9 @@ var schema = new Schema({
         required: true,
         unique: true
     },
+    nickname: {
+        type: String
+    },
     hashedPassword: {
         type: String,
         required: true
@@ -33,6 +36,17 @@ var schema = new Schema({
 
 schema.methods.encryptPassword = function(password){
     return crypto.createHmac('sha1', this.salt).update(password).digest('hex');
+};
+
+schema.pre('save', function(next){
+    if(!this.nickname || this.nickname === ""){
+        this.nickname = this.username;
+    }
+    next();
+});
+
+schema.methods.changeNickname = function(nickname){
+    this.nickname = nickname;
 };
 
 schema.statics.createUser = function(username, password, repeat_password, email, callback){

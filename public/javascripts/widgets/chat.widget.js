@@ -17,7 +17,7 @@ Widget.widgets['Chat'] = {
                 self.socket.emit('clients:get:history', params.id);
                 self.socket.emit('clients:join', params.id);
                 if(typeOfUser === "admin"){
-                    var adminWidget = new Widget('ConferenceAdmin', {id: params.id})
+                    //var adminWidget = new Widget('ConferenceAdmin', {id: params.id})
                 }
             }
         });

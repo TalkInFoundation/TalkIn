@@ -20,8 +20,32 @@ var init = function(option) {
 
     socket.on('init', function(data){
 
+        function generateList(text, array, type){
+            if(array.length > 0){
+                var p = $("<p></p>", {
+                }).text(text);
+                $contactsHolder.append(p);
+                array.forEach(function(contact){
+                    var li = $('<li></li>', {
+                        'class': 'contact-row',
+                        'data-id': contact.conference._id || contact.conference
+                    }).text(contact.username || contact.name);
+                    $contactsHolder.append(li);
+                    if(type==="requestsToFriend"){
+                        $contactsHolder.append("<a id=" + contact.username + " class='accept-request'>Accept</a>");
+                    }
+                })
+            }
+        }
+
         if(data.contacts) {
+            generateList("Waiting approvement", data.contacts.requests.addFriend);
+            generateList("Want to friend", data.contacts.requests.requestsToFriend, "requestsToFriend");
+            var p = $("<p></p>", {
+            }).text("Your contacts");
             data.contacts.conferences.forEach(function (contact) {
+                console.log(contact);
+                $contactsHolder.append(p);
                 var li = $('<li></li>', {
                     'class': 'contact-row',
                     'data-id': contact._id
@@ -113,6 +137,7 @@ var init = function(option) {
                             socket.emit('chat:send_message:private', {
                                 to: to,
                                 message: msg,
+                                id: id,
                                 time: Date.now(),
                                 images: imagesArray || []
                             });
@@ -151,9 +176,10 @@ var init = function(option) {
         });
     });
 
+    var searchContacts = new Widget('SearchContacts', {});
+
     $(document).on('click', '#send_invite', function(){
         var userToInvite = $(this).closest('.panel').find('#inviteName').val();
-        alert(userToInvite)
         var id = $(this).closest('.panel').find('input[type="hidden"]').data('id');
         $.ajax({
             method: "POST",
@@ -220,8 +246,8 @@ var init = function(option) {
         timeout = setTimeout(typingTimeOut, 0);
     });
 
-    socket.on('chat:send_message:private', function (data) {
-        new Message(data).sendMessage(userinfo.username);
+    socket.on('chat:send_message:private', function (data, id) {
+        new Message(data).sendMessage({username: userinfo.username, id:id});
         $(".typing#"+data.username+"").remove();
         clearTimeout(timeout);
         timeout = setTimeout(typingTimeOut, 0);
@@ -309,6 +335,10 @@ var init = function(option) {
         return $('input[data-id=' + id + ']').closest('.panel');
     }
 
+    function searchForElementInPanel(el, f){
+        return el.closest('.panel').find(f);
+    }
+
     socket.on('clients:get:information', function (data, id) {
         console.log(data);
         data.conferenceUsers.forEach(function(user){
@@ -355,12 +385,25 @@ var init = function(option) {
 
     });
 
+    $(document).on('click', '.accept-request', function(){
+        var contact = $(this).attr('id');
+        $.ajax({
+            method: "POST",
+            url: "/accept-request",
+            data: { contact: contact },
+            success: function (data) {
+
+            }
+        });
+    });
+
 
     $(document).on('click', '.user-field', function () {
+        var box = searchForElementInPanel($(this), '#chat_text');
         var username = $(this).text();
-        var prev_msg = $chat_text.val();
+        var prev_msg = box.val();
         var new_msg = "/w " + username + " " + prev_msg;
-        $chat_text.val(new_msg);
+        box.val(new_msg);
     });
 
     $(document).on('click', '.contact-row', function(){
@@ -373,6 +416,8 @@ var init = function(option) {
         socket.emit('clients:joinToRoom', id);
         parent.find('#join_to_conference').remove();
     });
+
+
 
     $(document).on('click', '.chat-image-close', function () {
         var parent = $(this).parent();

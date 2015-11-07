@@ -28,7 +28,7 @@ router.post('/inviteuser', function(req, res, next){
             conference.save(function(err){
                 if(err) return next(err);
             });
-            Contact.addConference(userToInvite, conference.name, conference._id, function(){
+            Contact.addConference(userToInvite, conference._id, function(){
                 res.json({success: "User " + userToInvite + " has been invited!"});
             });
 
