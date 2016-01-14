@@ -2,7 +2,7 @@ var init = function(option) {
     $('.scrollbar-macosx').scrollbar();
     var $slug = $('.slug').attr('id');
     console.log($slug);
-    var socket = io.connect('/conferences', {query: 'slug=' + $slug + "&" + "typeOfUser=" + typeOfUser});
+    var socket = io.connect('/conferences');
     var $chat_text = $('#chat_text');
     var $messages = $('#msgs');
     var $contactsHolder = $('.contacts-list');
@@ -340,7 +340,6 @@ var init = function(option) {
     }
 
     socket.on('clients:get:information', function (data, id) {
-        console.log(data);
         data.conferenceUsers.forEach(function(user){
             if(userinfo.username != user) {
                 searchByDataId(id).find('#connected_users').append("<p class='user-field'>" + user + "</p>");

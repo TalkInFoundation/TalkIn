@@ -1,56 +1,16 @@
 extends layout
-
-
-
+include ui/panel
 block content
-    .create-room-wrapper
-        a.create-room Create room
-        form(method="post" action=" " id="send_room")
-            input(type="text" name="roomName" placeholder="Name of the room..." id="roomName")
-            br
-            input(type="text" name="roomSlug" placeholder="Enter slug of the room" id="roomSlug")
-            br
-            input(type="radio" name="permissionChoice" value="open" id="typeOfOpen")
-            br
-            label(for="typeOfOpen") Open
-            br
-            input(type="radio" name="permissionChoice" value="closed" id="typeOfClose")
-            br
-            label(for="typeOfClose") Close
-            br
-            a#submit_room Create
-    .room-list-wrapper
-        table.room-table
-            tr
-                th.number-cell #
-                th.name-cell Name
-                th.owner-cell Owner
-                th.online-cell Online
-            - var n = 0
-            for conference in conferences
-                tr
-                    td= ++n
-                    td
-                        a(data-slug= conference.slug href= "/conference/"+conference.slug)= conference.name
-                    td= conference.owner
-                    td later...
+    if user
+        | Вы вошли.
+        a#logout Выйти
+    else
+        | Вы не вошли.
+    .info-wrapper.hidden
+    +panel('Contacts list', 250, 420, 100)
+        ul.contacts-list
+    script(type="text/javascript" src="/javascripts/Message.js")
+    script(type="text/javascript" src="/javascripts/chat.js").
     script(type="text/javascript").
-        $('.create-room').on('click', function(){
-            $('#send_room').show();
-        });
-        $('#submit_room').on('click', function(){
-            var $roomName = $('#roomName').val();
-            var $roomSlug = $('#roomSlug').val();
-            var $permissions;
-            if ($("input[name='permissionChoice']:checked").length > 0){
-                $permissions = $('input:radio[name=permissionChoice]:checked').val();
-            }
-            $.ajax({
-                method: "POST",
-                url: "",
-                data: {roomName: $roomName, roomSlug:$roomSlug, permissions: $permissions || "open"}
-            })
-                    .done(function (msg) {
-                        alert("ok");
-                    });
-        });
+        var typeOfUser = "#{typeOfUser}";
+        init(typeOfUser);

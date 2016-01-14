@@ -120,7 +120,6 @@ module.exports = function(server){
             logger.log('info', "New connection. IP: %s, username: ", socket.request.connection.remoteAddress, socket.request.user.get('username'))
             var slug = socket.request._query['slug'];
             var globalChannel = 'globalChannel';
-            var typeOfUser = socket.request._query['typeOfUser'];
             var username = socket.request.user.get('username');
             var users = findClientsSocketByRoomId(slug);//online users
             var socketid = socket.id;
@@ -157,20 +156,74 @@ module.exports = function(server){
                 });
             }
 
+            //var express = require('express');
+            //var checkAuth = require('../../middleware/checkAuth');
+            //var Conference = require('../../models/room').Conference;
+            //var HttpError = require('../../errors/HttpError').HttpError;
+            //var router = express.Router();
+            //
+            //
+            //router.get('/conference/:slug', checkAuth, function(req, res, next) {
+            //    var slug = req.params.slug;
+            //    var username = req.user.username;
+            //    var perm;
+            //    Conference.findOne({slug: slug}, function (err, data) {
+            //        if (err) return next(err);
+            //        if (!data) return next(new HttpError(404, "No conference found!"));
+            //        if(data.isOwner(username)){
+            //            perm = "admin";
+            //        }
+            //        else if(!data.inConference(username)){
+            //            if(!data.hasPermission('connect', perm || "user")){
+            //                return next(new HttpError(403, "Permission error!"));
+            //            }
+            //            // data.addUser(username);//add user in the room
+            //            // perm = 'member';
+            //            // data.save(function(err){
+            //            //     if(err) throw new HttpError(404);
+            //            // });
+            //            perm = "user";
+            //        }
+            //        else{
+            //            perm = "member";
+            //        }
+            //        res.render('room', {title: 'TalkIn', slug: slug, typeOfUser: perm, control: data});
+            //    });
+            //});
+            //
+            //module.exports = router;
+            //
+            //
+            //
+
 
             init();
 
             socket.on('clients:join', function(id){
                 socket.join(id);
                 var users = findClientsSocketByRoomId(id);
+                var perm;
                 async.parallel([
                     function(callback){
                         Conference.findOne({'_id': id}, function(err, data){
+                            if(data.isOwner(username)){
+                                perm = "admin";
+                            }
+                            else if(!data.inConference(username)){
+                                if(!data.hasPermission('connect', perm || "user")){
+                                    return next(new HttpError(403, "Permission error!"));
+                                }
+                                perm = "user";
+                            }
+                            else{
+                                perm = "member";
+                            }
                             if(err) return callback(err, data);
                             var clientInformation = {
                                 users: users,
                                 conferenceUsers: data.users, //get all users from conference
-                                data: data
+                                data: data,
+                                typeOfUser: perm
                             };
                             callback(null, clientInformation);
                         });
